@@ -1,0 +1,12 @@
+class Admin::BaseController < ApplicationController
+  before_action :require_admin
+  layout "admin"
+
+  private
+
+  def require_admin
+    unless Current.user&.admin?
+      redirect_to root_path, alert: "You are not authorized to access that area"
+    end
+  end
+end

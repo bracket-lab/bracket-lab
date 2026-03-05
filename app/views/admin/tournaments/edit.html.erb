@@ -1,0 +1,49 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Edit Tournament Results</h1>
+      <%= link_to "Back to Overview", admin_tournament_path, class: "btn btn-ghost" %>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% Current.tournament.rounds.each do |round| %>
+        <div class="card bg-base-100 shadow">
+          <div class="card-body">
+            <h2 class="card-title"><%= round.name %></h2>
+            <div class="space-y-2">
+              <% Current.tournament.round_for(round.number).each do |game| %>
+                <% if game.first_team && game.second_team %>
+                   <div class="p-2 bg-base-200 rounded">
+                    <div data-controller="admin-tournament">
+                      <%= form_tag admin_tournament_path, method: :patch, class: "space-y-2", data: { turbo: false, admin_tournament_target: "form" } do %>
+                        <%= hidden_field_tag :game_id, game.slot %>
+                        <div class="flex flex-col gap-2">
+                          <div class="flex items-center gap-3">
+                            <%= radio_button_tag :choice, 0, game.decision == 0, class: "radio", data: { admin_tournament_target: "choice" } %>
+                            <label class="text-sm truncate"><%= game.first_team.name %></label>
+                          </div>
+                          <div class="flex items-center gap-3">
+                            <%= radio_button_tag :choice, 1, game.decision == 1, class: "radio", data: { admin_tournament_target: "choice" } %>
+                            <label class="text-sm truncate"><%= game.second_team.name %></label>
+                          </div>
+                          <div class="flex justify-between items-center mt-2">
+                            <%= submit_tag "Update", class: "btn btn-primary btn-sm" %>
+                            <%= link_to "Clear", "#", class: "text-sm text-gray-500 hover:text-gray-700", data: { action: "admin-tournament#clear" } if game.team.present? %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% else %>
+                  <div class="p-2 bg-base-200 rounded text-base-content/70">
+                    Waiting for previous games...
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

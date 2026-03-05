@@ -1,0 +1,13 @@
+<% content_for :body_content do %>
+  <body>
+    <%= render "layouts/header" %>
+    <main class="container mx-auto px-4">
+      <div style="padding-top: 45px;">
+        <%= render "layouts/flash" %>
+        <%= yield %>
+      </div>
+    </main>
+  </body>
+<% end %>
+
+<%= render template: "layouts/base" %>

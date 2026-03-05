@@ -1,0 +1,26 @@
+<%# locals: (tournament:) %>
+<%
+  rounds = tournament.rounds
+  reverse_rounds = rounds.reverse.drop(1)
+  all_rounds = rounds + reverse_rounds
+%>
+<table class="rounds-banner">
+  <tbody>
+    <tr>
+      <% all_rounds.each do |r| %>
+        <th class="header"><%= r.name %></th>
+      <% end %>
+    </tr>
+    <tr>
+      <% all_rounds.each do |r| %>
+        <%
+          date_str = r.start_date.strftime("%b %-d")
+          if r.end_date > r.start_date
+            date_str += "-#{r.end_date.strftime("%-d")}"
+          end
+        %>
+        <td class="date-range"><%= date_str %></td>
+      <% end %>
+    </tr>
+  </tbody>
+</table>

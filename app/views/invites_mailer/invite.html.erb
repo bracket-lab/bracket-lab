@@ -1,0 +1,13 @@
+<p>Hey <%= @invite.full_name %>,</p>
+
+<p>You've been invited to join <%= @pool_name %>, our March Madness bracket pool! This is a private, friends & family pool.</p>
+
+<p>To join, accept the invitation:</p>
+
+<p><%= link_to 'Join the Pool', @url %></p>
+
+<p><b>Note:</b> this invite is specific to your account. Do not forward it.</p>
+
+<p>Good luck!</p>
+
+<p>ps. here is the direct link: <%= @url %> </p>

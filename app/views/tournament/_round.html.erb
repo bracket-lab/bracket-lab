@@ -1,0 +1,33 @@
+<%# locals: (round:, tournament_tree:, bracket_tree:, teams_by_slot:) %>
+<%
+  game_slots = tournament_tree.game_slots_for(round.number)
+  regions = round.regions
+%>
+<div class="round round<%= round.number %>">
+  <% if regions && regions.any? %>
+    <%
+      chunk_size = game_slots.size / regions.size
+      game_slots_by_region = game_slots.each_slice(chunk_size).to_a
+    %>
+    <% regions.each_with_index do |region_name, i| %>
+      <%= render "tournament/region",
+        region_name: region_name,
+        game_slots: game_slots_by_region[i],
+        round_number: round.number,
+        region_index: i + 1,
+        tournament_tree: tournament_tree,
+        bracket_tree: bracket_tree,
+        teams_by_slot: teams_by_slot %>
+    <% end %>
+  <% else %>
+    <% game_slots.each_with_index do |slot, i| %>
+      <%= render "tournament/game",
+        game_slot: slot,
+        tournament_tree: tournament_tree,
+        bracket_tree: bracket_tree,
+        round_number: round.number,
+        index: i + 1,
+        teams_by_slot: teams_by_slot %>
+    <% end %>
+  <% end %>
+</div>

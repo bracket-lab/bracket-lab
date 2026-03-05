@@ -1,0 +1,68 @@
+<% content_for :body_content do %>
+  <body class="min-h-screen bg-gray-100">
+
+  <header class="fixed w-full bg-base-100 shadow-md z-50">
+    <div class="drawer drawer-end">
+      <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+
+      <div class="drawer-content">
+        <nav class="container mx-auto px-4 py-2">
+          <div class="flex items-center justify-between">
+            <%= link_to admin_root_path, class: "flex items-center gap-2 text-primary hover:text-primary/80" do %>
+              <span class="font-bold">Admin Dashboard</span>
+            <% end %>
+
+            <!-- Desktop navigation -->
+            <div class="hidden md:flex items-center gap-6">
+              <%= link_to 'Tournament', admin_tournament_path, class: "flex items-center gap-2 hover:text-primary" %>
+              <%= link_to 'Brackets', admin_brackets_path, class: "flex items-center gap-2 hover:text-primary" %>
+              <%= link_to 'Users', admin_users_path, class: "flex items-center gap-2 hover:text-primary" %>
+              <%= link_to 'Invites', admin_invites_path, class: "flex items-center gap-2 hover:text-primary" %>
+              <%= link_to 'Queue', admin_jobs_path, class: "flex items-center gap-2 hover:text-primary", target: "_blank" %>
+              <%= link_to 'Back to Site', root_path, class: "flex items-center gap-2 hover:text-primary" %>
+            </div>
+
+            <!-- Mobile hamburger button -->
+            <label for="drawer-toggle" class="btn btn-ghost md:hidden">
+              <i>menu</i>
+            </label>
+
+          </div>
+        </nav>
+      </div>
+
+      <!-- Mobile drawer menu -->
+      <div class="drawer-side">
+        <label for="drawer-toggle" class="drawer-overlay"></label>
+        <div class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+
+          <!-- Close button -->
+          <div class="flex justify-end mb-4">
+            <label for="drawer-toggle" class="btn btn-ghost btn-circle">
+              <i class="material-symbols-outlined">close</i>
+            </label>
+          </div>
+
+
+          <%= link_to 'Tournament', admin_tournament_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" %>
+          <%= link_to 'Brackets', admin_brackets_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" %>
+          <%= link_to 'Users', admin_users_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" %>
+          <%= link_to 'Invites', admin_invites_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" %>
+          <%= link_to 'Queue', admin_jobs_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg", target: "_blank" %>
+          <%= link_to 'Back to Site', root_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" %>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div style="padding-top: 45px;">
+      <%= render "layouts/flash" %>
+      <%= yield %>
+    </div>
+  </main>
+  </body>
+<% end %>
+
+<%= render template: "layouts/base" %>

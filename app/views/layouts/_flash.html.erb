@@ -1,0 +1,20 @@
+<% flash.each do |type, message| %>
+  <% flash_type_class = type == "alert" ? "alert-error" : "alert-success" %>
+  <div id="toast-<%= type %>" class="toast">
+    <div class="alert <%= flash_type_class %> shadow-lg">
+      <span><%= message %></span>
+    </div>
+  </div>
+  <script>
+    setTimeout(function() {
+      var ele = document.getElementById("toast-<%= type %>");
+      if (ele) {
+        ele.classList.add("opacity-0", "transition-opacity", "duration-300");
+        setTimeout(function() {
+          ele.remove();
+        }, 300);
+      }
+
+    }, 4000);
+  </script>
+<% end %>

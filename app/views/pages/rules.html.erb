@@ -1,0 +1,51 @@
+<%= render layout: "layouts/page_header", locals: { 
+  title: "Rules"
+} do %>
+  <div class="max-w-3xl mx-auto space-y-8">
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">Pool Settings</h2>
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <tbody>
+              <tr>
+                <td class="font-bold">Entry Deadline</td>
+                <td><%= Current.tournament.tip_off.in_time_zone('Eastern Time (US & Canada)').strftime("%A, %B %-d at %l:%M%P %Z") %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">Scoring System</h2>
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <thead>
+              <tr>
+                <th class="text-left">Round</th>
+                <th class="text-left">Points per Game</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Field 64</td><td>1 + Seed Number</td></tr>
+              <tr><td>Field 32</td><td>2 + Seed Number</td></tr>
+              <tr><td>Sweet 16</td><td>3 + Seed Number</td></tr>
+              <tr><td>Elite Eight</td><td>5 + Seed Number</td></tr>
+              <tr><td>Final Four</td><td>8 + Seed Number</td></tr>
+              <tr><td>Champion</td><td>13 + Seed Number</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-4 text-base-content/70">
+          <p>For all correct picks you get that round's points <em>plus</em> the seed number of the
+          team. So, if you pick the 10th-seed team to win in the Sweet 16 round, that would be 13 points if
+          correct.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

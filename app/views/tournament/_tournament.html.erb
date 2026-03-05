@@ -1,0 +1,25 @@
+<%# locals: (bracket: nil) %>
+<%
+  tournament = Current.tournament
+  tournament_tree = tournament.tree
+  bracket_tree = bracket&.tree
+  teams_by_slot = Team.all.index_by(&:starting_slot)
+%>
+<div class="tournament-component">
+  <div class="tournament-heading">
+    <%= render "tournament/rounds_banner", tournament: tournament %>
+  </div>
+  <div class="tournament-body">
+    <% tournament.rounds.each do |round| %>
+      <%= render "tournament/round",
+        round: round,
+        tournament_tree: tournament_tree,
+        bracket_tree: bracket_tree,
+        teams_by_slot: teams_by_slot %>
+    <% end %>
+    <%= render "tournament/championship",
+      tournament_tree: tournament_tree,
+      bracket_tree: bracket_tree,
+      teams_by_slot: teams_by_slot %>
+  </div>
+</div>

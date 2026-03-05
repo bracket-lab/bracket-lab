@@ -1,0 +1,59 @@
+<%= render layout: "layouts/page_header", locals: {
+  title: "Leaderboard",
+  subtitle: "Last updated: #{time_ago_in_words(@last_updated)} ago • #{pluralize(@ranked_brackets.size, 'bracket')}"
+} do %>
+  <div data-controller="filter-brackets" data-current-user-id="<%= Current.user.id %>">
+    <div class="mb-4">
+      <label>
+        <input type="checkbox" class="toggle toggle-primary toggle-xs" data-filter-brackets-target="userCheckbox" data-action="change->filter-brackets#toggle" />
+        <span class="text-sm">My Brackets</span>
+      </label>
+      <% if @show_eliminated %>
+      <label class="ml-4">
+        <input type="checkbox" class="toggle toggle-primary toggle-xs" data-filter-brackets-target="eliminatedCheckbox" data-action="change->filter-brackets#toggle" />
+        <span class="text-sm">Hide Eliminated</span>
+      </label>
+      <% end %>
+    </div>
+
+    <ul class="list bg-base-100 md:rounded-box md:shadow-md">
+      <% @ranked_brackets.each do |ranked|
+        bracket = ranked[:bracket]
+        rank = ranked[:rank]
+        tied = ranked[:tied]
+      %>
+        <li class="list-row px-0 md:px-5" data-filter-brackets-target="listRow" data-user-id="<%= bracket.user.id %>" data-eliminated="<%= bracket.eliminated? %>">
+          <div class="font-thin <%= rank >= 100 ? 'w-8' : 'w-7' %>">
+            <% if tied %>
+              <div class="text-sm">tied</div>
+            <% end %>
+            <div class="<%= rank >= 100 ? 'text-base' : 'text-xl' %>"><%= rank %></div>
+          </div>
+
+          <div class="list-col-grow">
+            <%= link_to bracket_path(bracket) do %>
+              <div class="font-bold sm:truncate sm:max-w-sm">
+                <% if @show_eliminated && bracket.eliminated? %>
+                  *
+                <% end %>
+                <%= bracket.name.titleize %>
+              </div>
+              <div class="text-xs uppercase font-semibold opacity-60"><%= bracket.user.full_name %></div>
+              <div class="font-sm"><%= bracket.final_four_teams.map(&:name).join(", ") %></div>
+            <% end %>
+          </div>
+
+          <div class="text-right text-xl">
+            <div><%= bracket.points %></div>
+            <% unless Current.tournament.finished? %>
+              <div class="text-xs opacity-60"><%= bracket.possible_points %></div>
+            <% end %>
+            <% if @show_eliminated %>
+              <div class="text-xs opacity-80"><%= bracket.eliminated? ? 'Elim' : bracket.best_finish.ordinalize %></div>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

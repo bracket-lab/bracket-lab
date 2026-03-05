@@ -1,0 +1,76 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <div class="flex gap-3">
+        <% if Current.tournament.started? %>
+          <%= link_to "Manage Tournament", admin_tournament_path, class: "btn btn-primary" %>
+        <% else %>
+          <%= link_to "Manage Users", admin_users_path, class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="bg-white overflow-hidden shadow rounded-lg relative">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+          <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @total_users %></dd>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg relative">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Pending Invites</dt>
+          <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @pending_invites %></dd>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg relative">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Unpaid / Paid Brackets</dt>
+          <dd class="mt-1 text-3xl font-semibold text-red-600">
+            <span class="text-red-600"><%= @bracket_stats[:unpaid] %></span>
+            <span class="text-gray-900">/</span>
+            <span class="text-green-600"><%= @bracket_stats[:paid] %></span>
+          </dd>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg relative">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Unused Credits</dt>
+          <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @unused_credits %></dd>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-medium">Recently Accepted Invites</h2>
+          <%= link_to 'Pending Invites', admin_invites_path, class: 'text-sm text-indigo-600 hover:text-indigo-500' %>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead>
+            <tr>
+              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
+              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
+              <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Accepted At</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+            <% @recent_accepted_invites.each do |invite| %>
+              <tr>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= invite.full_name %></td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= invite.email_address %></td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= invite.used_at.strftime("%B %d, %Y") %></td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

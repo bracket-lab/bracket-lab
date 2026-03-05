@@ -1,0 +1,16 @@
+<%# locals: (region_name:, game_slots:, round_number:, region_index:, tournament_tree:, bracket_tree:, teams_by_slot:) %>
+<div class="region-component">
+  <% if round_number == 1 %>
+    <div class="region-label region<%= region_index %>"><%= region_name %></div>
+  <% end %>
+  <% game_slots.each_with_index do |slot, i| %>
+    <%= render "tournament/game",
+      game_slot: slot,
+      tournament_tree: tournament_tree,
+      bracket_tree: bracket_tree,
+      round_number: round_number,
+      index: i + 1,
+      region_index: region_index,
+      teams_by_slot: teams_by_slot %>
+  <% end %>
+</div>

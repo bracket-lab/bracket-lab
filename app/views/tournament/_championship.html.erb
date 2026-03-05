@@ -1,0 +1,24 @@
+<%# locals: (tournament_tree:, bracket_tree:, teams_by_slot:) %>
+<%
+  game = tournament_tree.at(1)
+  pick = bracket_tree&.at(1)
+
+  # Helper to get winner (team) from a game node using pre-loaded hash
+  # Mirrors Game#winner which calls team_by_slot(self) -> uses node.value
+  winner_for = ->(node) {
+    return nil unless node&.value
+    teams_by_slot[node.value]
+  }
+
+  champion = pick ? winner_for.call(pick) : winner_for.call(game)
+
+  pick_team = pick ? winner_for.call(pick) : nil
+  game_team = winner_for.call(game)
+  pick_class = pick ? pick_class_for(pick_team, game_team, round_one: false) : ""
+%>
+<div class="championship">
+  <div class="champion-box <%= pick_class %>">
+    <%= champion&.name %>
+  </div>
+  <div class="champion-label">CHAMPION</div>
+</div>

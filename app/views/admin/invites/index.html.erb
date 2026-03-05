@@ -1,0 +1,50 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Pending Invites (<%= @invites.size %>)</h1>
+      <div class="flex gap-3">
+        <%= link_to 'Bulk Invite', bulk_new_admin_invites_path, class: 'rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50' %>
+        <%= link_to 'New Invite', new_admin_invite_path, class: 'rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500' %>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-300">
+        <thead>
+          <tr>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <% @invites.each do |invite| %>
+            <tr>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= invite.full_name %></td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= invite.email_address %></td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <div class="flex gap-2">
+                  <button onclick="invite_details_<%= invite.id %>.showModal()" 
+                          class="btn btn-ghost btn-sm">
+                    <i>visibility</i>
+                  </button>
+                  
+                  <% if invite.pending? %>
+                    <%= button_to admin_invite_path(invite), 
+                                method: :delete,
+                                class: "btn btn-ghost btn-sm text-red-600 hover:text-red-900",
+                                data: { turbo_confirm: "Are you sure you want to delete this invite?" } do %>
+                      <i>delete</i>
+                    <% end %>
+                  <% end %>
+                </div>
+
+                <dialog id="invite_details_<%= invite.id %>" class="modal"><%= render "details_modal", invite: invite %></dialog>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

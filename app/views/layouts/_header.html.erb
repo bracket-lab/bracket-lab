@@ -1,0 +1,125 @@
+<header class="fixed w-full bg-base-100 shadow-md z-50">
+  <div class="drawer drawer-end">
+    <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+    
+    <div class="drawer-content">
+      <!-- Navbar -->
+      <nav class="container mx-auto px-4 py-2">
+        <div class="flex items-center justify-between">
+          <%= link_to root_path, class: "flex items-center gap-2 text-primary hover:text-primary/80" do %>
+              <i class="text-2xl">sports_basketball</i>
+              <span class="font-bold"><%= pool_name %></span>
+          <% end %>
+
+          
+          <!-- Desktop navigation -->
+          <div class="hidden md:flex items-center gap-6">
+            <% if Current.user.try(:admin?) %>
+              <%= link_to admin_root_path, class: "flex items-center gap-2 hover:text-primary" do %>
+                <i>admin_panel_settings</i>
+                <span>Admin Dashboard</span>
+              <% end %>
+            <% end %>
+
+            <% if !Current.tournament.finished? && Current.tournament.num_games_remaining < 4 %>
+              <%= link_to possible_outcomes_path, class: "flex items-center gap-2 hover:text-primary" do %>
+                <i>list_alt</i>
+                <span>Possible Outcomes</span>
+              <% end %>
+            <% end %>
+
+            <% if Current.tournament.started? %>
+              <%= link_to leaderboard_path, class: "flex items-center gap-2 hover:text-primary" do %>
+                <i>sports_basketball</i>
+                <span>Leaderboard</span>
+              <% end %>
+            <% elsif Current.tournament.set? %>
+              <%= link_to brackets_path, class: "flex items-center gap-2 hover:text-primary" do %>
+                <i>sports_basketball</i>
+                <span>Brackets</span>
+              <% end %>
+            <% end %>
+
+            <% if Current.tournament.started? || Current.user.try(:admin?) %>
+              <%= link_to game_results_path, class: "flex items-center gap-2 hover:text-primary" do %>
+                <i>scoreboard</i>
+                <span>Game Results</span>
+              <% end %>
+            <% end %>
+
+            <%= link_to rules_path, class: "flex items-center gap-2 hover:text-primary" do %>
+              <i>description</i>
+              <span>Rules &amp; Scoring</span>
+            <% end %>
+            
+            <%= link_to session_path, class: "flex items-center gap-2 hover:text-primary", data: { "turbo-method": :delete } do %>
+              <i>logout</i>
+              <span>Log out</span>
+            <% end %>
+          </div>
+          
+          <!-- Mobile hamburger button -->
+          <label for="drawer-toggle" class="btn btn-ghost md:hidden">
+            <i>menu</i>
+          </label>
+        </div>
+      </nav>
+    </div>
+    
+    <!-- Mobile drawer menu -->
+    <div class="drawer-side">
+      <label for="drawer-toggle" class="drawer-overlay"></label>
+      <div class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+        <!-- Close button -->
+        <div class="flex justify-end mb-4">
+          <label for="drawer-toggle" class="btn btn-ghost btn-circle">
+            <i class="material-symbols-outlined">close</i>
+          </label>
+        </div>
+        <% if Current.user.try(:admin?) %>
+          <%= link_to admin_root_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" do %>
+            <i>admin_panel_settings</i>
+            <span>Admin Dashboard</span>
+          <% end %>
+        <% end %>
+
+        <% if !Current.tournament.finished? && Current.tournament.num_games_remaining < 4 %>
+          <%= link_to possible_outcomes_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" do %>
+            <i>list_alt</i>
+            <span>Possible Outcomes</span>
+          <% end %>
+        <% end %>
+
+
+        <% if Current.tournament.started? %>
+          <%= link_to leaderboard_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" do %>
+            <i>sports_basketball</i>
+            <span>Leaderboard</span>
+          <% end %>
+        <% elsif Current.tournament.set? %>
+          <%= link_to brackets_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" do %>
+              <i>sports_basketball</i>
+              <span>Brackets</span>
+          <% end %>
+        <% end %>
+
+        <% if Current.tournament.started? || Current.user.try(:admin?) %>
+          <%= link_to game_results_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" do %>
+            <i>scoreboard</i>
+            <span>Game Results</span>
+          <% end %>
+        <% end %>
+
+        <%= link_to rules_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg" do %>
+          <i>description</i>
+          <span>Rules &amp; Scoring</span>
+        <% end %>
+        
+        <%= link_to session_path, class: "flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg", data: { "turbo-method": :delete } do %>
+          <i>logout</i>
+          <span>Log out</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</header>

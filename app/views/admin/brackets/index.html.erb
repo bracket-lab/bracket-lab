@@ -1,0 +1,41 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">All Brackets (<%= @brackets.size %>)</h1>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>User</th>
+            <th>Created</th>
+            <th>Payment Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @brackets.each do |bracket| %>
+            <tr>
+              <td><%= bracket.name %></td>
+              <td><%= bracket.user.full_name %></td>
+              <td><%= bracket.created_at.strftime("%B %d, %Y") %></td>
+              <td class="py-2">
+                <span class="badge <%= bracket.paid? ? 'badge-success' : 'badge-warning' %> badge-sm">
+                  <%= bracket.paid? ? 'paid' : 'unpaid' %>
+                </span>
+              </td>
+              <td class="flex gap-2">
+                <%= button_to "Delete", admin_bracket_path(bracket),
+                      method: :delete, 
+                      class: "btn btn-error btn-xs",
+                      data: { turbo_confirm: "Are you sure?" } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

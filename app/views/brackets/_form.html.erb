@@ -1,0 +1,36 @@
+<% props = bracket_picker_props(@bracket) %>
+<%= form_with model: @bracket, class: "interactive-bracket",
+    data: {
+      controller: "bracket-form",
+      action: "bracket-picker:pick->bracket-form#handlePick submit->bracket-form#submit"
+    } do |f| %>
+  <% if @bracket.errors.any? %>
+    <div class="toast" id="toast-validation">
+      <div class="alert alert-error shadow-lg">
+        <span><%= @bracket.errors.full_messages.to_sentence %></span>
+      </div>
+    </div>
+  <% end %>
+  <div class="tournament-component">
+    <div data-controller="bracket-picker"
+         data-bracket-picker-tournament-value="<%= props[:tournament].to_json %>"
+         data-bracket-picker-teams-value="<%= props[:teams].to_json %>"
+         data-bracket-picker-game-decisions-value="<%= props[:gameDecisions] %>"
+         data-bracket-picker-game-mask-value="<%= props[:gameMask] %>"
+         data-bracket-picker-beta-user-value="<%= props[:betaUser] %>"
+         data-bracket-picker-highlight-empty-value="false">
+    </div>
+  </div>
+  <%= f.hidden_field :game_decisions, value: props[:gameDecisions],
+      data: { bracket_form_target: "gameDecisions" } %>
+  <input type="hidden" value="<%= props[:gameMask] %>"
+         data-bracket-form-target="gameMask" />
+  <div class="max-w-sm bg-base-100 rounded-lg">
+    <div class="w-full">
+      <%= f.label :name, "Bracket Name" %>
+      <%= f.text_field :name, required: true,
+          class: "input input-bordered w-full mb-4" %>
+      <%= f.submit class: "btn btn-primary" %>
+    </div>
+  </div>
+<% end %>

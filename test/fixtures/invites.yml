@@ -1,0 +1,28 @@
+valid_invite:
+  email_address: valid@example.com
+  full_name: Valid User
+  token: 1234567890abcdefghijklmnopqrstuv
+  expires_at: <%= 7.days.from_now %>
+  created_by: admin_user
+
+used_invite:
+  email_address: used@example.com
+  full_name: Used User
+  token: 0987654321zyxwvutsrqponmlkjihgf
+  expires_at: <%= 7.days.from_now %>
+  used_at: <%= Time.current %>
+  created_by: admin_user
+
+expired_invite:
+  email_address: expired@example.com
+  full_name: Expired User
+  token: fedcba0987654321zyxwvutsrqponmlk
+  expires_at: <%= 7.days.ago %>
+  created_by: admin_user
+
+pending:
+  email_address: pending@example.com
+  full_name: Pending User
+  token: fedcba0987654321zyxwvutsrqademlka
+  expires_at: <%= 7.days.from_now %>
+  created_by: admin_user

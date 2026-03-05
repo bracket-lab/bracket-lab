@@ -1,0 +1,35 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <h1 class="text-2xl font-bold">All Users (<%= @users.size %>)</h1>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-300">
+        <thead>
+        <tr>
+          <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
+          <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
+          <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Brackets (Paid/Total)</th>
+          <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+        <% @users.each do |user| %>
+          <tr>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= user.full_name %></td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= user.email_address %></td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+                <span class="<%= user.brackets_paid? ? 'text-green-600' : 'text-red-600' %>">
+                  <%= user.payment_credits %>/<%= user.brackets.count %>
+                </span>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <%= link_to 'Edit', edit_admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
+              <%= link_to 'Delete', admin_user_path(user), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "ml-2 text-red-600 hover:text-red-900" %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      RUBOCOP_CACHE_ROOT: tmp/rubocop
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+
+      - name: Install Ruby dependencies
+        run: bundle install
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install JS dependencies
+        run: bun install --frozen-lockfile
+
+      - name: TypeScript type check
+        run: bun run --bun tsc --noEmit
+
+      - name: Scan for Rails security vulnerabilities
+        run: bin/brakeman --no-pager
+
+      - name: Scan for gem vulnerabilities
+        run: bin/bundler-audit
+
+      - name: Lint
+        run: bin/rubocop
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git pkg-config unzip
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+
+      - name: Install Ruby dependencies
+        run: bundle install
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install JS dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Build assets
+        run: bun run build && bun run build:css
+
+      - name: Prepare database
+        env:
+          RAILS_ENV: test
+        run: bin/rails db:test:prepare
+
+      - name: Run tests (unit and integration)
+        env:
+          RAILS_ENV: test
+        run: bin/rails test
+
+      - name: Run system tests
+        env:
+          RAILS_ENV: test
+          CI: true
+        run: bin/rails test:system
+
+      - name: Keep screenshots from failed system tests
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: ${{ github.workspace }}/tmp/screenshots
+          if-no-files-found: ignore

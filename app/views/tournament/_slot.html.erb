@@ -1,0 +1,6 @@
+<%# locals: (team:, pick_class:, slot_number:) %>
+<p class="slot slot<%= slot_number %> <%= pick_class %>">
+  <% if team %>
+    <span class="seed"><%= team.seed %></span> <%= team.name %>
+  <% end %>
+</p>

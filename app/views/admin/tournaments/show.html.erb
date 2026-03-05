@@ -1,0 +1,44 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Tournament Management</h1>
+      <div class="flex gap-3">
+        <% unless Current.tournament.set? %>
+          <%= button_to "Finalize Teams",
+              set_teams_admin_tournament_path,
+              class: "btn btn-primary",
+              data: { turbo_confirm: "Are you sure? This cannot be undone." } %>
+        <% end %>
+        <% if Current.tournament.not_started? %>
+          <%= button_to "Start Tournament",
+                        start_admin_tournament_path,
+                        class: "btn btn-primary",
+                        data: { turbo_confirm: "Are you sure? This cannot be undone." } %>
+        <% end %>
+        <%= link_to "Edit Results", edit_admin_tournament_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% Current.tournament.rounds.each do |round| %>
+        <div class="card bg-base-100 shadow">
+          <div class="card-body">
+            <h2 class="card-title"><%= round.name %></h2>
+            <div class="space-y-2">
+              <% Current.tournament.round_for(round.number).each do |game| %>
+                <div class="p-2 bg-base-200 rounded">
+                  <div class="text-sm">
+                    <div><%= game.first_team&.name || "TBD" %> vs <%= game.second_team&.name || "TBD" %></div>
+                    <% if game.team.present? %>
+                      <div class="text-primary font-medium">Winner: <%= game.team.name %></div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

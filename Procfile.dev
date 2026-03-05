@@ -1,0 +1,4 @@
+web: env RUBY_DEBUG_OPEN=true bin/rails server -b 0.0.0.0
+js: bun run build --watch
+css: bun run build:css --watch
+types: bun run check-types --watch

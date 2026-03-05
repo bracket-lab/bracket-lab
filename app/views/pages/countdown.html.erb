@@ -1,0 +1,39 @@
+<%= render layout: "layouts/page_header", locals: { 
+  title: "Selection Sunday"
+} do %>
+  <div class="max-w-3xl mx-auto text-center space-y-8">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body items-center">
+        <div class="mb-4 text-primary">
+          <i class="text-6xl">sports_basketball</i>
+        </div>
+        <h2 class="text-3xl font-bold mb-2">Selection Sunday Countdown</h2>
+
+        <div class="text-4xl font-bold mt-8 mb-8 countdown"
+             data-controller="countdown"
+             data-target-date="<%= Current.tournament.selection_sunday.iso8601 %>">
+          <span data-countdown-target="days" 
+                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) / 86400).to_i %>">
+          </span>
+          :
+          <span data-countdown-target="hours" 
+                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) % 86400 / 3600).to_i %>"></span>
+          :
+          <span data-countdown-target="minutes" 
+                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) % 3600 / 60).to_i %>"></span>
+          :
+          <span data-countdown-target="seconds" 
+                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) % 60).to_i %>"></span>
+        </div>
+
+
+        <% if Current.tournament.selection_in_progress? %>
+          <h4 class="text-xl font-bold mb-2">Selection Show In Progress</h4>
+          <p class="text-base-content/70 text-lg mb-6">
+            The tournament field is being set. Check back soon to make your picks!
+          </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

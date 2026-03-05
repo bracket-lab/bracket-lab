@@ -1,0 +1,41 @@
+<%# locals: (game_slot:, tournament_tree:, bracket_tree:, round_number:, index:, region_index: nil, teams_by_slot:) %>
+<%
+  game = tournament_tree.at(game_slot)
+  pick = bracket_tree&.at(game_slot)
+  round_one = round_number == 1
+
+  # Helper to get first team from a game node using pre-loaded hash
+  # Mirrors Game#first_team: team_one || team_by_slot(left)
+  first_team_for = ->(node) {
+    return nil unless node
+    slot_number = node.leaf? ? node.left_position : node.left&.value
+    teams_by_slot[slot_number]
+  }
+
+  # Helper to get second team from a game node using pre-loaded hash
+  # Mirrors Game#second_team: team_two || team_by_slot(right)
+  second_team_for = ->(node) {
+    return nil unless node
+    slot_number = node.leaf? ? node.right_position : node.right&.value
+    teams_by_slot[slot_number]
+  }
+
+  # Get teams for each slot position (from pick if available, otherwise from game)
+  team1 = pick ? first_team_for.call(pick) : first_team_for.call(game)
+  team2 = pick ? second_team_for.call(pick) : second_team_for.call(game)
+
+  # Get game result teams (what actually happened in tournament)
+  game_team1 = first_team_for.call(game)
+  game_team2 = second_team_for.call(game)
+
+  # Compute pick classes
+  pick_class1 = pick ? pick_class_for(team1, game_team1, round_one: round_one) : ""
+  pick_class2 = pick ? pick_class_for(team2, game_team2, round_one: round_one) : ""
+
+  classes = ["match", "m#{index}", "round#{round_number}"]
+  classes << "region#{region_index}" if region_index
+%>
+<div class="<%= classes.join(' ') %>">
+  <%= render "tournament/slot", team: team1, pick_class: pick_class1, slot_number: 1 %>
+  <%= render "tournament/slot", team: team2, pick_class: pick_class2, slot_number: 2 %>
+</div>

@@ -1,0 +1,55 @@
+<% if @valid_invites.any? || @invalid_invites.any? %>
+  <div class="space-y-6 mb-8">
+    <% if @valid_invites.any? %>
+      <div class="mb-6">
+        <h2 class="text-lg font-medium mb-4">Valid Invites (<%= @valid_invites.size %>)</h2>
+        <div class="valid-invites bg-white shadow overflow-hidden sm:rounded-md">
+          <ul role="list" class="divide-y divide-gray-200">
+            <% @valid_invites.each do |invite| %>
+              <li class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm">
+                      <span class="text-gray-900"><%= invite[:name] %></span>
+                      <span class="block text-gray-500"><%= invite[:email] %></span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+    <%= form_tag bulk_create_admin_invites_path, class: "flex justify-end gap-x-3" do %>
+      <% @valid_invites.each do |invite| %>
+        <%= hidden_field_tag "invites[][email]", invite[:email] %>
+        <%= hidden_field_tag "invites[][name]", invite[:name] %>
+
+  <% end %>
+      <%= link_to "Back", bulk_new_admin_invites_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      <% if @valid_invites.any? %>
+        <%= submit_tag "Send Invites", class: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" %>
+      <% end %>
+    <% end %>
+
+
+    <% if @invalid_invites.any? %>
+      <div class="mb-6">
+        <h2 class="text-lg font-medium mb-4 text-red-600">Invalid Entries (<%= @invalid_invites.size %>)</h2>
+        <div class="invalid-invites bg-red-50 shadow overflow-hidden sm:rounded-md">
+          <ul role="list" class="divide-y divide-red-200">
+            <% @invalid_invites.each do |invite| %>
+              <li class="px-4 py-4 sm:px-6">
+                <div class="text-sm text-red-700">
+                  <p class="font-medium">Original text: <%= invite[:line] %></p>
+                  <p class="mt-1">Error: <%= invite[:error] %></p>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

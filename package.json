@@ -1,0 +1,33 @@
+{
+  "name": "bracket-lab",
+  "private": true,
+  "scripts": {
+    "build": "bun bun.config.js",
+    "build:css": "bunx @tailwindcss/cli -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify",
+    "lint": "bun run --bun prettier 'app/javascript/**/*.*' 'app/assets/stylesheets/**/*.css'",
+    "lint:fix": "bun run --bun prettier --write 'app/javascript/**/*.*' 'app/assets/stylesheets/**/*.css'",
+    "check-types": "bun run --bun tsc --project tsconfig.json --noEmit --preserveWatchOutput"
+  },
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "@hotwired/turbo-rails": "^8.0.13",
+    "@tailwindcss/cli": "^4.0.14",
+    "classnames": "^2.5.1",
+    "daisyui": "^5.0.3",
+    "lodash-es": "^4.17.23",
+    "preact": "^10.28.4",
+    "tailwindcss": "^4.0.14"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.5",
+    "@types/lodash-es": "^4.17.12",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "printWidth": 100
+  }
+}
