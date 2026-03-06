@@ -7,8 +7,8 @@ class InitialSchema < ActiveRecord::Migration[8.1]
       t.string "password_digest", null: false
       t.integer "payment_credits", default: 0, null: false
       t.timestamps
-      t.index ["admin"]
-      t.index ["email_address"], unique: true
+      t.index [ "admin" ]
+      t.index [ "email_address" ], unique: true
     end
 
     create_table "sessions" do |t|
@@ -31,10 +31,10 @@ class InitialSchema < ActiveRecord::Migration[8.1]
       t.integer "seed", null: false
       t.integer "starting_slot", null: false
       t.timestamps
-      t.index ["name"], unique: true
-      t.index ["region", "seed"], unique: true
-      t.index ["region"]
-      t.index ["starting_slot"], unique: true
+      t.index [ "name" ], unique: true
+      t.index [ "region", "seed" ], unique: true
+      t.index [ "region" ]
+      t.index [ "starting_slot" ], unique: true
     end
 
     create_table "invites" do |t|
@@ -45,8 +45,8 @@ class InitialSchema < ActiveRecord::Migration[8.1]
       t.string "token", null: false
       t.datetime "used_at"
       t.timestamps
-      t.index ["email_address"]
-      t.index ["token"], unique: true
+      t.index [ "email_address" ]
+      t.index [ "token" ], unique: true
     end
 
     create_table "brackets" do |t|
@@ -54,14 +54,14 @@ class InitialSchema < ActiveRecord::Migration[8.1]
       t.string "name", null: false
       t.references "user", null: false, foreign_key: true
       t.timestamps
-      t.index ["name"], unique: true
+      t.index [ "name" ], unique: true
     end
 
     create_table "possible_results" do |t|
       t.integer "best_finish", default: 1, null: false
       t.references "bracket", null: false, index: { unique: true }
       t.timestamps
-      t.index ["updated_at"]
+      t.index [ "updated_at" ]
     end
 
     add_foreign_key "possible_results", "brackets"
