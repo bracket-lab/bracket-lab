@@ -83,7 +83,6 @@ docker run -d \
   -p 443:443 \
   -v bracket-lab-storage:/rails/storage \
   -v bracket-lab-certs:/rails/storage/thruster \
-  -e TLS_DOMAIN=brackets.example.com \
   -e RAILS_MASTER_KEY=<your-master-key> \
   -e POOL_NAME="My Bracket Pool" \
   -e APP_HOST=brackets.example.com \
@@ -105,8 +104,8 @@ docker run --rm ghcr.io/bracket-lab/bracket-lab:latest bin/rails secret | head -
 |----------|----------|-------------|
 | `RAILS_MASTER_KEY` | Yes | Decrypts application credentials |
 | `POOL_NAME` | Yes | Name of your bracket pool |
-| `APP_HOST` | Yes | Hostname for email links (e.g. `brackets.example.com`) |
-| `TLS_DOMAIN` | Yes | Domain for automatic SSL via Let's Encrypt (e.g. `brackets.example.com`) |
+| `APP_HOST` | Yes | Hostname for email links and automatic SSL (e.g. `brackets.example.com`) |
+| `SKIP_TLS_CONFIG` | No | Set to disable automatic SSL (for reverse proxy setups) |
 | `SMTP_HOST` | For email | SMTP server address |
 | `SMTP_USERNAME` | For email | SMTP username |
 | `SMTP_PASSWORD` | For email | SMTP password |
@@ -136,7 +135,6 @@ services:
       - bracket-lab-storage:/rails/storage
       - bracket-lab-certs:/rails/storage/thruster
     environment:
-      TLS_DOMAIN: ${TLS_DOMAIN}
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       POOL_NAME: ${POOL_NAME}
       APP_HOST: ${APP_HOST}
@@ -153,12 +151,13 @@ volumes:
 
 ### Running Behind a Reverse Proxy
 
-If you already terminate SSL with nginx, Caddy, or Cloudflare, omit `TLS_DOMAIN` and expose only port 80:
+If you already terminate SSL with nginx, Caddy, or Cloudflare, disable automatic TLS and expose only port 80:
 
 ```yaml
     ports:
       - "3000:80"
-    # Do not set TLS_DOMAIN
+    environment:
+      SKIP_TLS_CONFIG: "1"
 ```
 
 ### Image Tags
