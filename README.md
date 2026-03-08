@@ -115,11 +115,10 @@ docker run --rm ghcr.io/bracket-lab/bracket-lab:latest bin/rails secret | head -
 
 ### Data Persistence
 
-Bracket Lab uses SQLite. Mount a volume at `/rails/storage` to persist your database, and a separate volume for TLS certificates:
+Bracket Lab uses SQLite. Mount a volume at `/rails/storage` to persist your database and TLS certificates:
 
 ```bash
 docker volume create bracket-lab-storage
-docker volume create bracket-lab-certs
 ```
 
 ### Docker Compose
@@ -133,7 +132,6 @@ services:
       - "443:443"
     volumes:
       - bracket-lab-storage:/rails/storage
-      - bracket-lab-certs:/rails/storage/thruster
     environment:
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       POOL_NAME: ${POOL_NAME}
@@ -146,16 +144,15 @@ services:
 
 volumes:
   bracket-lab-storage:
-  bracket-lab-certs:
 ```
 
 ### Running Behind a Reverse Proxy
 
-If you already terminate SSL with nginx, Caddy, or Cloudflare, disable automatic TLS and expose only port 80:
+If you already terminate SSL with nginx, Caddy, or Cloudflare, disable automatic TLS and expose port 3000:
 
 ```yaml
     ports:
-      - "3000:80"
+      - "3000:3000"
     environment:
       SKIP_TLS_CONFIG: "1"
 ```
