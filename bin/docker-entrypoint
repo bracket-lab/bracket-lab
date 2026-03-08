@@ -12,4 +12,9 @@ if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:seed
 fi
 
+# Configure automatic TLS via Thruster unless opted out
+if [ -z "${SKIP_TLS_CONFIG}" ] && [ -n "${APP_HOST}" ]; then
+  export TLS_DOMAIN="${APP_HOST}"
+fi
+
 exec "${@}"

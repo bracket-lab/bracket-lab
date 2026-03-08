@@ -1,4 +1,4 @@
-# Madness-rb
+# Bracket Lab
 
 A Ruby on Rails application for managing tournament brackets and pools.
 
@@ -36,9 +36,8 @@ cp .env.template .env
 Edit `.env` and set the following required variables:
 - `RAILS_MASTER_KEY`: Rails master key for decrypting credentials
 - `POOL_NAME`: Name of your tournament pool
-- `MADNESS_HOST`: Host domain for your application
+- `APP_HOST`: Host domain for your application
 - `SMTP_*`: SMTP settings for email delivery
-- `DEV_PASSWORD`: Password for dev scenario users
 
 ## Testing
 
@@ -72,22 +71,99 @@ Available scenarios:
 | `final_four` | 60 games (3 games remaining) |
 | `completed` | All 63 games finished |
 
-## Production Deployment
+## Self-Hosting
 
-The application includes a production-ready Dockerfile with:
-- Multi-stage builds for smaller images
-- Jemalloc for improved memory usage
-- Proper security settings
-- Automatic database migrations
-- Asset precompilation
+Bracket Lab publishes Docker images to GitHub Container Registry.
 
-The production environment uses:
-- SQLite databases with persistent storage
-- Solid Queue for background job processing
-- Solid Cache for caching
-- Solid Cable for Action Cable
-- Thruster for HTTP asset optimization
-- Pundit for authorization
+### Quick Start
+
+```bash
+docker run -d \
+  -p 80:80 \
+  -p 443:443 \
+  -v bracket-lab-storage:/rails/storage \
+  -v bracket-lab-certs:/rails/storage/thruster \
+  -e RAILS_MASTER_KEY=<your-master-key> \
+  -e POOL_NAME="My Bracket Pool" \
+  -e APP_HOST=brackets.example.com \
+  --name bracket-lab \
+  ghcr.io/bracket-lab/bracket-lab:latest
+```
+
+### Generating a Master Key
+
+The master key encrypts application credentials. Generate one for your deployment:
+
+```bash
+docker run --rm ghcr.io/bracket-lab/bracket-lab:latest bin/rails secret | head -c 32
+```
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `RAILS_MASTER_KEY` | Yes | Decrypts application credentials |
+| `POOL_NAME` | Yes | Name of your bracket pool |
+| `APP_HOST` | Yes | Hostname for email links and automatic SSL (e.g. `brackets.example.com`) |
+| `SKIP_TLS_CONFIG` | No | Set to disable automatic SSL (for reverse proxy setups) |
+| `SMTP_HOST` | For email | SMTP server address |
+| `SMTP_USERNAME` | For email | SMTP username |
+| `SMTP_PASSWORD` | For email | SMTP password |
+| `DEFAULT_FROM_EMAIL` | For email | Sender address for outgoing email |
+| `SMTP_PORT` | No | SMTP port (default: 587) |
+| `SMTP_AUTHENTICATION` | No | SMTP auth method (default: plain) |
+
+### Data Persistence
+
+Bracket Lab uses SQLite. Mount a volume at `/rails/storage` to persist your database and TLS certificates:
+
+```bash
+docker volume create bracket-lab-storage
+```
+
+### Docker Compose
+
+```yaml
+services:
+  bracket-lab:
+    image: ghcr.io/bracket-lab/bracket-lab:2026
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - bracket-lab-storage:/rails/storage
+    environment:
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      POOL_NAME: ${POOL_NAME}
+      APP_HOST: ${APP_HOST}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
+    restart: unless-stopped
+
+volumes:
+  bracket-lab-storage:
+```
+
+### Running Behind a Reverse Proxy
+
+If you already terminate SSL with nginx, Caddy, or Cloudflare, disable automatic TLS and expose port 3000:
+
+```yaml
+    ports:
+      - "3000:3000"
+    environment:
+      SKIP_TLS_CONFIG: "1"
+```
+
+### Image Tags
+
+| Tag | Description |
+|-----|-------------|
+| `latest` | Most recent build from main |
+| `2026` | Latest release for the 2026 tournament season |
+| `2026.0` | Specific version (immutable) |
 
 ## License
 

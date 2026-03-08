@@ -1,5 +1,5 @@
 {
-  description = "Madness-rb bracket pool Rails app";
+  description = "Bracket Lab bracket pool Rails app";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
