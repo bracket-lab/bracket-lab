@@ -90,27 +90,27 @@ docker run -d \
   ghcr.io/bracket-lab/bracket-lab:latest
 ```
 
-### Generating a Master Key
+### Generating a Secret Key Base
 
-The master key encrypts application credentials. Generate one for your deployment:
+The secret key base is used by Rails to encrypt session cookies, etc. Generate one for your deployment:
 
 ```bash
-docker run --rm ghcr.io/bracket-lab/bracket-lab:latest bin/rails secret | head -c 32
+ruby -rsecurerandom -e "puts SecureRandom.hex(64)"
 ```
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `RAILS_MASTER_KEY` | Yes | Decrypts application credentials |
-| `POOL_NAME` | Yes | Name of your bracket pool |
-| `APP_HOST` | Yes | Hostname for email links and automatic SSL (e.g. `brackets.example.com`) |
-| `SKIP_TLS_CONFIG` | No | Set to disable automatic SSL (for reverse proxy setups) |
-| `SMTP_HOST` | For email | SMTP server address |
-| `SMTP_USERNAME` | For email | SMTP username |
-| `SMTP_PASSWORD` | For email | SMTP password |
-| `DEFAULT_FROM_EMAIL` | For email | Sender address for outgoing email |
-| `SMTP_PORT` | No | SMTP port (default: 587) |
+| Variable              | Required | Description |
+|-----------------------|----------|-------------|
+| `SECRET_KEY_BASE`     | Yes | Decrypts application credentials |
+| `POOL_NAME`           | Yes | Name of your bracket pool |
+| `APP_HOST`            | Yes | Hostname for email links and automatic SSL (e.g. `brackets.example.com`) |
+| `SKIP_TLS_CONFIG`     | No | Set to disable automatic SSL (for reverse proxy setups) |
+| `SMTP_HOST`           | For email | SMTP server address |
+| `SMTP_USERNAME`       | For email | SMTP username |
+| `SMTP_PASSWORD`       | For email | SMTP password |
+| `DEFAULT_FROM_EMAIL`  | For email | Sender address for outgoing email |
+| `SMTP_PORT`           | No | SMTP port (default: 587) |
 | `SMTP_AUTHENTICATION` | No | SMTP auth method (default: plain) |
 
 ### Data Persistence
@@ -133,7 +133,7 @@ services:
     volumes:
       - bracket-lab-storage:/rails/storage
     environment:
-      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       POOL_NAME: ${POOL_NAME}
       APP_HOST: ${APP_HOST}
       SMTP_HOST: ${SMTP_HOST:-}
@@ -159,11 +159,11 @@ If you already terminate SSL with nginx, Caddy, or Cloudflare, disable automatic
 
 ### Image Tags
 
-| Tag | Description |
-|-----|-------------|
+| Tag      | Description |
+|----------|-------------|
 | `latest` | Most recent build from main |
-| `2026` | Latest release for the 2026 tournament season |
-| `2026.0` | Specific version (immutable) |
+| `2026`   | Latest release for the 2026 tournament season |
+| `2026.X` | Specific version (immutable) |
 
 ## License
 
