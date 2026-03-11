@@ -1,5 +1,5 @@
 class Tournament < ApplicationRecord
-  TIP_OFF = Time.iso8601(ENV.fetch("TIP_OFF", "2025-03-20T16:00:00Z"))
+  TIP_OFF = Time.iso8601(ENV.fetch("TIP_OFF", "2026-03-19T16:00:00Z"))
   NUM_ROUNDS = 6
 
   after_update do |tournament|

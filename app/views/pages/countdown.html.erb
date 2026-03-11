@@ -13,17 +13,17 @@
              data-controller="countdown"
              data-target-date="<%= Current.tournament.selection_sunday.iso8601 %>">
           <span data-countdown-target="days" 
-                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) / 86400).to_i %>">
+                style="--digits: 2; --value:<%= ((Current.tournament.selection_sunday - Time.current) / 86400).to_i %>">
           </span>
           :
           <span data-countdown-target="hours" 
-                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) % 86400 / 3600).to_i %>"></span>
+                style="--digits: 2; --value:<%= ((Current.tournament.selection_sunday - Time.current) % 86400 / 3600).to_i %>"></span>
           :
           <span data-countdown-target="minutes" 
-                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) % 3600 / 60).to_i %>"></span>
+                style="--digits: 2; --value:<%= ((Current.tournament.selection_sunday - Time.current) % 3600 / 60).to_i %>"></span>
           :
           <span data-countdown-target="seconds" 
-                style="--value:<%= ((Current.tournament.selection_sunday - Time.current) % 60).to_i %>"></span>
+                style="--digits: 2; --value:<%= ((Current.tournament.selection_sunday - Time.current) % 60).to_i %>"></span>
         </div>
 
 
