@@ -112,6 +112,11 @@ ruby -rsecurerandom -e "puts SecureRandom.hex(64)"
 | `DEFAULT_FROM_EMAIL`  | For email | Sender address for outgoing email |
 | `SMTP_PORT`           | No | SMTP port (default: 587) |
 | `SMTP_AUTHENTICATION` | No | SMTP auth method (default: plain) |
+| `LITESTREAM_REPLICA_BUCKET` | For backups | S3-compatible bucket name for [Litestream](https://litestream.io/) database replication |
+| `LITESTREAM_REPLICA_ENDPOINT` | For backups | S3-compatible endpoint URL |
+| `LITESTREAM_REPLICA_REGION` | For backups | Bucket region |
+| `LITESTREAM_ACCESS_KEY_ID` | For backups | S3 access key ID |
+| `LITESTREAM_SECRET_ACCESS_KEY` | For backups | S3 secret access key |
 
 ### Data Persistence
 
@@ -120,6 +125,8 @@ Bracket Lab uses SQLite. Mount a volume at `/rails/storage` to persist your data
 ```bash
 docker volume create bracket-lab-storage
 ```
+
+Optional continuous backups are available via [Litestream](https://litestream.io/), which replicates the SQLite database to any S3-compatible object storage. Set the `LITESTREAM_REPLICA_*` environment variables to enable it — Litestream runs automatically inside the application process with no additional setup.
 
 ### Docker Compose
 

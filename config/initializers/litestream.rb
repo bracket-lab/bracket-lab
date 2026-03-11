@@ -5,12 +5,6 @@
 # or some other mechanism where the values are only available at runtime.
 
 Rails.application.configure do
-  if ENV["LITESTREAM_REPLICA_BUCKET"].present?
-    config.litestream.replica_bucket = ENV["LITESTREAM_REPLICA_BUCKET"]
-    config.litestream.replica_key_id = ENV["LITESTREAM_ACCESS_KEY_ID"]
-    config.litestream.replica_access_key = ENV["LITESTREAM_SECRET_ACCESS_KEY"]
-  end
-
   # Configure Litestream through environment variables. Use Rails encrypted credentials for secrets.
   # litestream_credentials = Rails.application.credentials.litestream
 
