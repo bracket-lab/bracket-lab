@@ -83,4 +83,46 @@ class TeamTest < ActiveSupport::TestCase
   #       end
   #     end
   #   end
+
+  test "placeholder_name_for generates region and seed name" do
+    # Slot 64 = South region (index 0), seed 1
+    assert_equal "South 1", Team.placeholder_name_for(64)
+    # Slot 65 = South region (index 0), seed 16
+    assert_equal "South 16", Team.placeholder_name_for(65)
+    # Slot 80 = West region (index 1), seed 1
+    assert_equal "West 1", Team.placeholder_name_for(80)
+    # Slot 96 = East region (index 2), seed 1
+    assert_equal "East 1", Team.placeholder_name_for(96)
+    # Slot 112 = Midwest region (index 3), seed 1
+    assert_equal "Midwest 1", Team.placeholder_name_for(112)
+  end
+
+  test "name must be unique" do
+    existing_team = teams(:team_64)
+    new_team = Team.new(
+      starting_slot: 999,
+      name: existing_team.name,
+      seed: 1,
+      region: :south
+    )
+    assert_not new_team.valid?
+    assert_includes new_team.errors[:name], "has already been taken"
+  end
+
+  test "idempotent seeding does not duplicate teams" do
+    initial_count = Team.count
+    # Run seeding logic a second time (teams already exist from fixtures)
+    64.times do |i|
+      starting_slot = i + 64
+      seed = Team.seed_for_slot(starting_slot)
+      region = i / 16
+
+      Team.find_or_create_by!(starting_slot: starting_slot) do |team|
+        team.name = Team.placeholder_name_for(starting_slot)
+        team.seed = seed
+        team.region = region
+      end
+    end
+    assert_equal initial_count, Team.count
+  end
 end

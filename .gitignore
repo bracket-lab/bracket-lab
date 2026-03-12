@@ -47,3 +47,6 @@
 .direnv/
 
 /docs/
+
+# Superpowers brainstorming
+/.superpowers/
