@@ -21,32 +21,45 @@
     </div>
 
     <% unless Current.tournament.started? %>
-      <div class="mb-6 p-4 bg-base-200 rounded-lg">
-        <h2 class="text-lg font-semibold mb-3">Region Order</h2>
-        <p class="text-sm text-gray-500 mb-3">Bracket placement: 1=top-left, 2=bottom-left, 3=top-right, 4=bottom-right</p>
-        <div class="space-y-2">
-          <% Current.tournament.region_labels.each_with_index do |label, index| %>
-            <div class="flex items-center gap-3 p-2 bg-white rounded shadow-sm">
-              <span class="text-sm font-mono text-gray-400 w-6"><%= index + 1 %></span>
-              <span class="flex-grow font-medium"><%= label %></span>
-              <div class="flex gap-1">
-                <% if index > 0 %>
-                  <%= button_to update_region_labels_admin_tournament_path, method: :post, class: "btn btn-xs btn-ghost", params: { region_labels: Current.tournament.region_labels.dup.tap { |a| a[index], a[index - 1] = a[index - 1], a[index] } } do %>
-                    &#9650;
+      <div class="mb-6 p-4 bg-base-200 rounded-lg" data-controller="inline-edit">
+        <div data-inline-edit-target="show" class="flex items-center gap-3">
+          <h2 class="text-lg font-semibold">Region Order</h2>
+          <span class="text-sm text-gray-500"><%= Current.tournament.region_labels.join(", ") %></span>
+          <button type="button" data-action="inline-edit#edit" class="link link-primary text-sm">Edit</button>
+        </div>
+
+        <div data-inline-edit-target="edit" class="hidden">
+          <div class="flex items-center gap-3 mb-3">
+            <h2 class="text-lg font-semibold">Region Order</h2>
+            <span class="text-sm text-gray-500">1=top-left, 2=bottom-left, 3=top-right, 4=bottom-right</span>
+          </div>
+          <div class="space-y-2">
+            <% Current.tournament.region_labels.each_with_index do |label, index| %>
+              <div class="flex items-center gap-3 p-2 bg-white rounded shadow-sm">
+                <span class="text-sm font-mono text-gray-400 w-6"><%= index + 1 %></span>
+                <span class="flex-grow font-medium"><%= label %></span>
+                <div class="flex gap-1">
+                  <% if index > 0 %>
+                    <%= button_to update_region_labels_admin_tournament_path, method: :post, class: "btn btn-xs btn-ghost", params: { region_labels: Current.tournament.region_labels.dup.tap { |a| a[index], a[index - 1] = a[index - 1], a[index] } } do %>
+                      &#9650;
+                    <% end %>
+                  <% else %>
+                    <span class="btn btn-xs btn-ghost invisible">&#9650;</span>
                   <% end %>
-                <% else %>
-                  <span class="btn btn-xs btn-ghost invisible">&#9650;</span>
-                <% end %>
-                <% if index < 3 %>
-                  <%= button_to update_region_labels_admin_tournament_path, method: :post, class: "btn btn-xs btn-ghost", params: { region_labels: Current.tournament.region_labels.dup.tap { |a| a[index], a[index + 1] = a[index + 1], a[index] } } do %>
-                    &#9660;
+                  <% if index < 3 %>
+                    <%= button_to update_region_labels_admin_tournament_path, method: :post, class: "btn btn-xs btn-ghost", params: { region_labels: Current.tournament.region_labels.dup.tap { |a| a[index], a[index + 1] = a[index + 1], a[index] } } do %>
+                      &#9660;
+                    <% end %>
+                  <% else %>
+                    <span class="btn btn-xs btn-ghost invisible">&#9660;</span>
                   <% end %>
-                <% else %>
-                  <span class="btn btn-xs btn-ghost invisible">&#9660;</span>
-                <% end %>
+                </div>
               </div>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
+          <div class="mt-3">
+            <button type="button" data-action="inline-edit#cancel" class="btn btn-ghost btn-sm">Done</button>
+          </div>
         </div>
       </div>
     <% end %>
