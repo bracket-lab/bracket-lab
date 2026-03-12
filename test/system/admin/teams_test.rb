@@ -47,6 +47,14 @@ class Admin::TeamsTest < ApplicationSystemTestCase
     assert_equal "Import 1", Team.order(:starting_slot).first.name
   end
 
+  test "import cancel returns to teams page" do
+    sign_in_as(@admin)
+    visit import_admin_teams_path
+    click_on "Cancel"
+
+    assert_selector "h1", text: "Manage Teams"
+  end
+
   test "import shows errors for wrong count" do
     sign_in_as(@admin)
     visit import_admin_teams_path

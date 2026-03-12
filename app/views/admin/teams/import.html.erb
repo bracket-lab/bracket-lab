@@ -27,7 +27,7 @@
         </div>
 
         <div class="flex justify-end gap-x-3">
-          <%= link_to "Cancel", admin_teams_path, class: "btn btn-ghost" %>
+          <%= link_to "Cancel", admin_teams_path, class: "btn btn-ghost", data: { turbo_frame: "_top" } %>
           <%= submit_tag "Preview", class: "btn btn-primary" %>
         </div>
       <% end %>
