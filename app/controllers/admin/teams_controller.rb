@@ -30,6 +30,7 @@ class Admin::TeamsController < Admin::BaseController
   end
 
   def import
+    @current_names = Team.order(:starting_slot).pluck(:name).join("\n")
   end
 
   def import_preview
