@@ -1,7 +1,7 @@
 class Tournament < ApplicationRecord
   TIP_OFF = Time.iso8601(ENV.fetch("TIP_OFF", "2026-03-19T16:00:00Z"))
   NUM_ROUNDS = 6
-  REGION_NAMES = ["South", "West", "East", "Midwest"].freeze
+  REGION_NAMES = [ "South", "West", "East", "Midwest" ].freeze
   NUM_REGIONS = 4
 
   serialize :region_labels, coder: JSON

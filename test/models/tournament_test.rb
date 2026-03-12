@@ -177,34 +177,34 @@ class TournamentTest < ActiveSupport::TestCase
   end
 
   test "region_labels defaults to standard order" do
-    assert_equal ["South", "West", "East", "Midwest"], @tournament.region_labels
+    assert_equal [ "South", "West", "East", "Midwest" ], @tournament.region_labels
   end
 
   test "region_labels accepts any permutation" do
-    @tournament.region_labels = ["East", "West", "South", "Midwest"]
+    @tournament.region_labels = [ "East", "West", "South", "Midwest" ]
     assert @tournament.valid?
   end
 
   test "region_labels rejects duplicates" do
-    @tournament.region_labels = ["South", "South", "East", "Midwest"]
+    @tournament.region_labels = [ "South", "South", "East", "Midwest" ]
     assert_not @tournament.valid?
     assert_includes @tournament.errors[:region_labels], "must be a permutation of the four region names"
   end
 
   test "region_labels rejects missing values" do
-    @tournament.region_labels = ["South", "West", "East"]
+    @tournament.region_labels = [ "South", "West", "East" ]
     assert_not @tournament.valid?
     assert_includes @tournament.errors[:region_labels], "must be a permutation of the four region names"
   end
 
   test "region_labels rejects extra values" do
-    @tournament.region_labels = ["South", "West", "East", "Midwest", "North"]
+    @tournament.region_labels = [ "South", "West", "East", "Midwest", "North" ]
     assert_not @tournament.valid?
     assert_includes @tournament.errors[:region_labels], "must be a permutation of the four region names"
   end
 
   test "region_labels rejects non-standard names" do
-    @tournament.region_labels = ["South", "West", "East", "North"]
+    @tournament.region_labels = [ "South", "West", "East", "North" ]
     assert_not @tournament.valid?
     assert_includes @tournament.errors[:region_labels], "must be a permutation of the four region names"
   end

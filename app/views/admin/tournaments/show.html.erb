@@ -33,33 +33,24 @@
             <h2 class="text-lg font-semibold">Region Order</h2>
             <span class="text-sm text-gray-500">1=top-left, 2=bottom-left, 3=top-right, 4=bottom-right</span>
           </div>
-          <div class="space-y-2">
-            <% Current.tournament.region_labels.each_with_index do |label, index| %>
-              <div class="flex items-center gap-3 p-2 bg-white rounded shadow-sm">
-                <span class="text-sm font-mono text-gray-400 w-6"><%= index + 1 %></span>
-                <span class="flex-grow font-medium"><%= label %></span>
-                <div class="flex gap-1">
-                  <% if index > 0 %>
-                    <%= button_to update_region_labels_admin_tournament_path, method: :post, class: "btn btn-xs btn-ghost", params: { region_labels: Current.tournament.region_labels.dup.tap { |a| a[index], a[index - 1] = a[index - 1], a[index] } } do %>
-                      &#9650;
+          <%= form_tag update_region_labels_admin_tournament_path, method: :post do %>
+            <div class="space-y-2">
+              <% Current.tournament.region_labels.each_with_index do |label, index| %>
+                <div class="flex items-center gap-3">
+                  <span class="text-sm font-mono text-gray-400 w-6"><%= index + 1 %></span>
+                  <select name="region_labels[]" class="select select-bordered select-sm">
+                    <% Tournament::REGION_NAMES.each do |name| %>
+                      <option value="<%= name %>" <%= 'selected' if name == label %>><%= name %></option>
                     <% end %>
-                  <% else %>
-                    <span class="btn btn-xs btn-ghost invisible">&#9650;</span>
-                  <% end %>
-                  <% if index < 3 %>
-                    <%= button_to update_region_labels_admin_tournament_path, method: :post, class: "btn btn-xs btn-ghost", params: { region_labels: Current.tournament.region_labels.dup.tap { |a| a[index], a[index + 1] = a[index + 1], a[index] } } do %>
-                      &#9660;
-                    <% end %>
-                  <% else %>
-                    <span class="btn btn-xs btn-ghost invisible">&#9660;</span>
-                  <% end %>
+                  </select>
                 </div>
-              </div>
-            <% end %>
-          </div>
-          <div class="mt-3">
-            <button type="button" data-action="inline-edit#cancel" class="btn btn-ghost btn-sm">Done</button>
-          </div>
+              <% end %>
+            </div>
+            <div class="mt-3 flex gap-2">
+              <button type="submit" class="btn btn-primary btn-sm">Save</button>
+              <button type="button" data-action="inline-edit#cancel" class="btn btn-ghost btn-sm">Cancel</button>
+            </div>
+          <% end %>
         </div>
       </div>
     <% end %>
