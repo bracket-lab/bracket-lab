@@ -2,7 +2,7 @@ class Team < ApplicationRecord
   REGION_NAMES = [ :south, :west, :east, :midwest ]
   SEED_ORDER = [ 1, 16, 8, 9, 5, 12, 4, 13, 6, 11, 3, 14, 7, 10, 2, 15 ].freeze
 
-  validates :name, length: { maximum: 15 }, uniqueness: true
+  validates :name, presence: true, length: { maximum: 15 }, uniqueness: true
 
   default_scope { order(starting_slot: :asc) }
 

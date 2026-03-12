@@ -27,6 +27,14 @@ class Admin::TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "New Name", @team.name
   end
 
+  test "should reject blank team name" do
+    sign_in_as(@admin)
+    patch admin_team_url(@team), params: { team: { name: "" } }, as: :turbo_stream
+    assert_response :unprocessable_entity
+    @team.reload
+    assert_equal "Auburn", @team.name
+  end
+
   test "should reject invalid team name" do
     sign_in_as(@admin)
     patch admin_team_url(@team), params: { team: { name: "This Name Is Way Too Long" } }, as: :turbo_stream
