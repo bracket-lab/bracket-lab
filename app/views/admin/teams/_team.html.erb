@@ -1,5 +1,5 @@
 <%= turbo_frame_tag team do %>
-  <div class="flex items-center gap-3 py-2" data-controller="inline-edit">
+  <div class="flex items-center gap-3 py-2 px-2 rounded<%= ' bg-base-200' if local_assigns[:zebra] %>" data-controller="inline-edit">
     <span class="w-12 text-sm font-semibold text-gray-500 text-right">#<%= team.seed %></span>
 
     <div data-inline-edit-target="show" class="flex items-center gap-2<%= ' hidden' if team.errors.any? %>">

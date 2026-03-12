@@ -12,9 +12,9 @@
     <% Team::REGION_NAMES.each_with_index do |region, region_index| %>
       <div class="mb-8">
         <h2 class="text-lg font-semibold mb-3 capitalize"><%= region %></h2>
-        <div class="divide-y divide-gray-100">
-          <% @teams.select { |t| t.region == region.to_s }.each do |team| %>
-            <%= render partial: "admin/teams/team", locals: { team: team } %>
+        <div>
+          <% @teams.select { |t| t.region == region.to_s }.each_with_index do |team, i| %>
+            <%= render partial: "admin/teams/team", locals: { team: team, zebra: i.odd? } %>
           <% end %>
         </div>
       </div>
