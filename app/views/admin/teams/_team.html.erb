@@ -1,3 +1,15 @@
 <%= turbo_frame_tag team do %>
-  <div id="<%= dom_id(team) %>"><%= team.name %></div>
+  <div class="flex items-center gap-3 py-2">
+    <span class="w-12 text-sm font-semibold text-gray-500 text-right">#<%= team.seed %></span>
+    <%= form_with(model: [:admin, team], class: "flex items-center gap-2 flex-1") do |form| %>
+      <%= form.text_field :name,
+        maxlength: 15,
+        class: "input input-bordered input-sm flex-1 max-w-xs" %>
+      <%= form.submit "Save",
+        class: "btn btn-primary btn-sm" %>
+    <% end %>
+    <% if team.errors.any? %>
+      <span class="text-error text-sm"><%= team.errors.full_messages.to_sentence %></span>
+    <% end %>
+  </div>
 <% end %>
