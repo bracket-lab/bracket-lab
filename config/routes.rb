@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     resource :tournament, only: [ :show, :edit, :update ] do
       post :set_teams, on: :member
       post :start, on: :member
+      post :update_region_labels, on: :member
     end
 
     resources :brackets, only: [ :index, :destroy ]

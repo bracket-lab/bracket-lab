@@ -20,6 +20,17 @@ class Admin::TournamentsController < Admin::BaseController
     end
   end
 
+  def update_region_labels
+    tournament = Current.tournament
+    new_labels = params[:region_labels]
+
+    if tournament.update(region_labels: new_labels)
+      redirect_to admin_tournament_path, notice: "Region order updated"
+    else
+      redirect_to admin_tournament_path, alert: tournament.errors.full_messages.to_sentence
+    end
+  end
+
   def edit
   end
 
