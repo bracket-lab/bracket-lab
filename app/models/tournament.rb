@@ -79,14 +79,10 @@ class Tournament < ApplicationRecord
   def game_slots_for(round_number, region = nil)
     game_ids = tree.game_slots_for(round_number)
 
-    # regions can symbols (names) or ints (enum idx)
-    region = Team.regions[region] if region.is_a?(Symbol)
-
-    if region.present? && game_ids.size >= Team.regions.size
-      slice_size = game_ids.size / Team.regions.size
-      slice_index = region
+    if !region.nil? && game_ids.size >= NUM_REGIONS
+      slice_size = game_ids.size / NUM_REGIONS
       slices = game_ids.each_slice(slice_size).to_a
-      slices[slice_index]
+      slices[region]
     else
       game_ids
     end
