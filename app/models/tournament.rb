@@ -1,6 +1,12 @@
 class Tournament < ApplicationRecord
   TIP_OFF = Time.iso8601(ENV.fetch("TIP_OFF", "2026-03-19T16:00:00Z"))
   NUM_ROUNDS = 6
+  REGION_NAMES = ["South", "West", "East", "Midwest"].freeze
+  NUM_REGIONS = 4
+
+  serialize :region_labels, coder: JSON
+
+  validate :region_labels_must_be_valid_permutation
 
   after_update do |tournament|
     UpdateBestFinishesJob.perform_later if tournament.num_games_remaining < 16
@@ -220,5 +226,11 @@ class Tournament < ApplicationRecord
 
     # Then mask off the MSB (for 64-bit integer)
     result & Bracket::MAX_INT64
+  end
+
+  def region_labels_must_be_valid_permutation
+    unless region_labels.is_a?(Array) && region_labels.sort == REGION_NAMES.sort
+      errors.add(:region_labels, "must be a permutation of the four region names")
+    end
   end
 end
