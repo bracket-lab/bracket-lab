@@ -14,9 +14,9 @@ The bracket has 4 structural positions (0, 1, 2, 3) that correspond to fixed loc
 
 Add a `region_labels` text column with `serialize :region_labels, coder: JSON` in the model. Default `["South", "West", "East", "Midwest"]`. The array index is the region position (0-3), the value is the display label string. Text column with JSON serialization is used because the app runs on SQLite.
 
-The migration adds `region_labels` with a default value. The single existing tournament record gets the default, which matches the current hardcoded order. No data migration is needed.
+The migration sets the database-level default as a JSON string: `default: '["South","West","East","Midwest"]'`. The single existing tournament record gets the default, which matches the current hardcoded order. No data migration is needed.
 
-**Validation:** `region_labels` must be a permutation of `["South", "West", "East", "Midwest"]` -- all 4 present, no duplicates, no other values. Only the ordering can change.
+**Validation:** `region_labels` must be a permutation of `Tournament::REGION_NAMES`. All 4 present, no duplicates, no other values. Only the ordering can change.
 
 ### Team model
 
@@ -27,20 +27,21 @@ The migration adds `region_labels` with a default value. The single existing tou
 
 ### Tournament model
 
-- Add `serialize :region_labels, coder: JSON` with a default.
+- Add `REGION_NAMES = ["South", "West", "East", "Midwest"].freeze` -- the canonical set of allowed region labels. Used as the default value and the validation reference.
 - Add `NUM_REGIONS = 4` constant to replace uses of `Team.regions.size`.
+- Add `serialize :region_labels, coder: JSON` with default from `REGION_NAMES`.
 - `game_slots_for` takes integer region only. Remove the symbol-to-int conversion (`Team.regions[region] if region.is_a?(Symbol)`) since there are no more enum symbols.
 - Replace `Team.regions.size` with `NUM_REGIONS`.
 
 ### Game model
 
-- `region` method returns the label string by looking up from `tournament.region_labels` using the computed index. This preserves the current return type (string) for any callers.
+- `region` method returns the label string by looking up from `tournament.region_labels` using the computed index. Note: the return type changes from Symbol to String, but no code currently calls this method from views. `Game` already has private `tournament` access via `tree.tournament`.
 - Replace `Team.regions.size` with `Tournament::NUM_REGIONS`.
 - Replace `Team.region_names` with `tournament.region_labels`.
 
 ### Round model
 
-- `regions` method gains a `tournament` parameter (or accesses `Current.tournament`) and returns `tournament.region_labels` (an array of label strings) instead of `Team.region_names`. This preserves the return type as an array of strings, so all downstream consumers (ERB partials and React components) need zero changes.
+- `regions` method uses `Current.tournament.region_labels` instead of `Team.region_names`. This preserves the return type as an array of strings and the zero-argument signature, so all downstream consumers (ERB partials, React components, `bracket_picker_props`) need zero changes.
 
 ## Admin UI
 
@@ -81,7 +82,7 @@ These views reference `Team::REGION_NAMES` and must be updated:
 
 ### Test updates
 
-- `test/models/tournament_test.rb` -- replace `Team.east_region` and `Team.regions[:east]` with integer-based region lookup (`Team.where(region: 2)` and integer `2`).
+- `test/models/tournament_test.rb` -- replace `Team.east_region` and `Team.regions[:east]` with integer-based region lookup (`Team.where(region: 2)` and integer `2`). Also replace all symbol-based `round_for` calls (e.g., `:midwest`) with integer arguments.
 - `test/models/team_test.rb` -- replace `region: :south` symbol (line 106) with `region: 0`. Update `placeholder_name_for` tests to verify labels come from the tournament.
 - `test/system/bracket_picker_test.rb` and `tournament_display_test.rb` -- region label assertions continue to work since the default label order matches the current hardcoded order.
 
