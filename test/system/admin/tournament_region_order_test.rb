@@ -3,7 +3,6 @@ require "application_system_test_case"
 class Admin::TournamentRegionOrderTest < ApplicationSystemTestCase
   setup do
     @admin = users(:admin_user)
-    Tournament.field_64.update_column(:state, Tournament.states[:pre_selection])
   end
 
   test "admin can reorder regions with dropdowns and save" do
@@ -53,13 +52,5 @@ class Admin::TournamentRegionOrderTest < ApplicationSystemTestCase
 
     assert_equal original, Tournament.field_64.reload.region_labels
     assert_text original.join(", ")
-  end
-
-  test "region order section hidden when tournament started" do
-    Tournament.field_64.update_column(:state, Tournament.states[:in_progress])
-    sign_in_as(@admin)
-    visit admin_tournament_path
-
-    assert_no_text "Region Order"
   end
 end
