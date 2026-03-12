@@ -12,7 +12,9 @@ The bracket has 4 structural positions (0, 1, 2, 3) that correspond to fixed loc
 
 ### Tournament table
 
-Add a `region_labels` JSON column with default `["South", "West", "East", "Midwest"]`. The array index is the region position (0-3), the value is the display label string.
+Add a `region_labels` text column with `serialize :region_labels, coder: JSON` in the model. Default `["South", "West", "East", "Midwest"]`. The array index is the region position (0-3), the value is the display label string. Text column with JSON serialization is used because the app runs on SQLite.
+
+The migration adds `region_labels` with a default value. The single existing tournament record gets the default, which matches the current hardcoded order. No data migration is needed.
 
 **Validation:** `region_labels` must be a permutation of `["South", "West", "East", "Midwest"]` -- all 4 present, no duplicates, no other values. Only the ordering can change.
 
@@ -25,19 +27,20 @@ Add a `region_labels` JSON column with default `["South", "West", "East", "Midwe
 
 ### Tournament model
 
-- Add `region_labels` accessor with JSON default.
+- Add `serialize :region_labels, coder: JSON` with a default.
 - Add `NUM_REGIONS = 4` constant to replace uses of `Team.regions.size`.
-- `game_slots_for` uses integer region directly. Remove the symbol-to-int conversion (`Team.regions[region] if region.is_a?(Symbol)`).
+- `game_slots_for` takes integer region only. Remove the symbol-to-int conversion (`Team.regions[region] if region.is_a?(Symbol)`) since there are no more enum symbols.
+- Replace `Team.regions.size` with `NUM_REGIONS`.
 
 ### Game model
 
-- `region` method returns the integer index (0-3) instead of a symbol name. Display code looks up the label from the tournament.
+- `region` method returns the label string by looking up from `tournament.region_labels` using the computed index. This preserves the current return type (string) for any callers.
 - Replace `Team.regions.size` with `Tournament::NUM_REGIONS`.
-- Replace `Team.region_names` with `(0...Tournament::NUM_REGIONS).to_a`.
+- Replace `Team.region_names` with `tournament.region_labels`.
 
 ### Round model
 
-- `regions` returns `(0...Tournament::NUM_REGIONS).to_a` (position indices) instead of names. Views look up labels from the tournament.
+- `regions` method gains a `tournament` parameter (or accesses `Current.tournament`) and returns `tournament.region_labels` (an array of label strings) instead of `Team.region_names`. This preserves the return type as an array of strings, so all downstream consumers (ERB partials and React components) need zero changes.
 
 ## Admin UI
 
@@ -47,14 +50,26 @@ On the existing `admin/tournaments/show` page, add a "Region Order" section:
 - Up/down arrow buttons on each row to reorder.
 - Position labels indicating bracket location: 0 = top-left, 1 = bottom-left, 2 = top-right, 3 = bottom-right.
 - Save via standard form submission with Turbo, consistent with existing admin patterns.
+- Add a dedicated `update_region_labels` action to `Admin::TournamentsController` with a corresponding route (member action).
 - Only shown when tournament is in `pre_selection` or `not_started` state. Once the tournament starts, region order is locked.
 
 ## Frontend / Display
 
-- `bracket_picker_props` in `ApplicationHelper` adds `regionLabels: tournament.region_labels` to the tournament hash.
-- `Round#regions` returns `(0...Tournament::NUM_REGIONS).to_a` for regional rounds. The frontend uses these indices to look up from `regionLabels`.
-- CSS classes `region1`-`region4` in `tournament_bracket.css` define fixed bracket positions and stay as-is. Only the label text changes.
-- Region label elements (`.region-label`) get their text from `regionLabels[index]` instead of hardcoded names.
+Because `Round#regions` continues to return label strings (now sourced from tournament instead of the Team constant), no React or ERB changes are needed for rendering:
+
+- `Region.tsx` receives the label string via `region` prop and renders it directly -- no change.
+- `_round.html.erb` iterates `round.regions` as label strings and passes `region_name:` to `_region.html.erb` -- no change.
+- `_region.html.erb` renders `region_name` as the label text -- no change.
+- CSS classes `region1`-`region4` in `tournament_bracket.css` define fixed bracket positions and stay as-is.
+
+The `bracket_picker_props` helper passes `round.regions` (now tournament-sourced labels) through the existing `regions` key in round data. No new key is needed.
+
+## Admin Team Views
+
+These views reference `Team::REGION_NAMES` and must be updated:
+
+- `admin/teams/index.html.erb` -- iterates `Team::REGION_NAMES` to group teams by region. Change to iterate `Current.tournament.region_labels.each_with_index` and compare using integer region index (`t.region == region_index`).
+- `admin/teams/import_preview.html.erb` -- same pattern. Iterate `Current.tournament.region_labels.each_with_index` and compare `p[:team].region == region_index` (integer-to-integer, not string comparison).
 
 ## Seeds, Scenarios & Tests
 
@@ -62,16 +77,17 @@ On the existing `admin/tournaments/show` page, add a "Region Order" section:
 
 - `db/seeds.rb` -- assigns `team.region = i / 16` as an integer. Already correct.
 - `lib/scenarios/base.rb` -- same integer assignment pattern.
+- Tournament fixtures -- omitting `region_labels` relies on the database default, which is correct.
 
 ### Test updates
 
-- `test/models/tournament_test.rb` -- replace `Team.east_region` and `Team.regions[:east]` with integer-based region lookup (`Team.where(region: 2)`).
-- `test/models/team_test.rb` -- replace `region: :south` symbols with `region: 0`. Update `placeholder_name_for` tests to verify labels come from the tournament.
-- `test/system/bracket_picker_test.rb` and `tournament_display_test.rb` -- region label assertions continue to work with default order. Labels come from the tournament record.
+- `test/models/tournament_test.rb` -- replace `Team.east_region` and `Team.regions[:east]` with integer-based region lookup (`Team.where(region: 2)` and integer `2`).
+- `test/models/team_test.rb` -- replace `region: :south` symbol (line 106) with `region: 0`. Update `placeholder_name_for` tests to verify labels come from the tournament.
+- `test/system/bracket_picker_test.rb` and `tournament_display_test.rb` -- region label assertions continue to work since the default label order matches the current hardcoded order.
 
 ### New tests
 
-- Tournament model: validate `region_labels` permutation validation (rejects duplicates, missing values, extra values, non-standard names).
+- Tournament model: validate `region_labels` permutation validation (rejects duplicates, missing values, extra values, non-standard names; accepts any permutation).
 - Tournament model: `region_labels` default is `["South", "West", "East", "Midwest"]`.
 - Admin integration: reordering region labels persists correctly.
 - Admin integration: reorder UI hidden when tournament is started.
