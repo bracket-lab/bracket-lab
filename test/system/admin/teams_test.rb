@@ -11,13 +11,14 @@ class Admin::TeamsTest < ApplicationSystemTestCase
 
     team = teams(:team_64)
     within "#team_#{team.id}" do
+      click_on "Edit"
       fill_in "team[name]", with: "Updated"
       click_on "Save"
     end
 
-    # The name lives inside an input field, so check the field value
     within "#team_#{team.id}" do
-      assert_field "team[name]", with: "Updated"
+      assert_text "Updated"
+      assert_no_field "team[name]"
     end
     team.reload
     assert_equal "Updated", team.name

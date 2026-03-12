@@ -18,3 +18,6 @@ application.register("bracket-form", BracketFormController)
 
 import BracketPickerController from "./bracket_picker_controller"
 application.register("bracket-picker", BracketPickerController)
+
+import InlineEditController from "./inline_edit_controller"
+application.register("inline-edit", InlineEditController)
