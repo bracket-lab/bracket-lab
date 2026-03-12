@@ -1,0 +1,4 @@
+<h1>Manage Teams</h1>
+<% @teams.each do |team| %>
+  <%= render partial: "admin/teams/team", locals: { team: team } %>
+<% end %>
