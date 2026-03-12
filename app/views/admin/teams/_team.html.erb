@@ -1,0 +1,23 @@
+<%= turbo_frame_tag team do %>
+  <div class="flex items-center gap-3 py-2 px-2 rounded<%= ' bg-base-200' if local_assigns[:zebra] %>" data-controller="inline-edit">
+    <span class="w-12 text-sm font-semibold text-gray-500 text-right">#<%= team.seed %></span>
+
+    <div data-inline-edit-target="show" class="flex items-center gap-2<%= ' hidden' if team.errors.any? %>">
+      <span class="text-sm w-40"><%= team.name %></span>
+      <button type="button" data-action="inline-edit#edit" class="link link-primary text-sm">Edit</button>
+    </div>
+
+    <div data-inline-edit-target="edit" class="flex items-center gap-2 flex-1<%= ' hidden' unless team.errors.any? %>">
+      <%= form_with(model: [:admin, team], class: "flex items-center gap-2 flex-1") do |form| %>
+        <%= form.text_field :name,
+          maxlength: 15,
+          class: "input input-bordered input-sm flex-1 max-w-xs" %>
+        <%= form.submit "Save", class: "btn btn-primary btn-sm" %>
+        <button type="button" data-action="inline-edit#cancel" class="btn btn-ghost btn-sm">Cancel</button>
+      <% end %>
+      <% if team.errors.any? %>
+        <span class="text-error text-sm"><%= team.errors.full_messages.to_sentence %></span>
+      <% end %>
+    </div>
+  </div>
+<% end %>

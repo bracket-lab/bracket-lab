@@ -17,6 +17,14 @@ Rails.application.routes.draw do
 
     resources :brackets, only: [ :index, :destroy ]
 
+    resources :teams, only: [ :index, :update ] do
+      collection do
+        get :import
+        post :import_preview
+        post :import_apply
+      end
+    end
+
     resources :invites, only: [ :index, :new, :create, :show, :destroy ] do
       collection do
         get :bulk_new

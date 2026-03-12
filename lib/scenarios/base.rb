@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "csv"
-
 module Scenarios
   # Base class for development scenarios that set up test data.
   # Subclasses implement #setup to create specific tournament states.
@@ -21,6 +19,17 @@ module Scenarios
       { full_name: "Quinn Wilson", email_address: "quinn@example.com" },
       { full_name: "Drew Anderson", email_address: "drew@example.com" },
       { full_name: "Sam Martinez", email_address: "sam@example.com" }
+    ].freeze
+
+    TEAM_NAMES = [
+      "Auburn", "Alabama St", "Louisville", "Creighton", "Michigan", "UC San Diego", "Texas A&M", "Yale",
+      "Ole Miss", "N Carolina", "Iowa St", "Lipscomb", "Marquette", "New Mexico", "Michigan St", "Bryant",
+      "Florida", "Norfolk St", "UConn", "Oklahoma", "Memphis", "Colorado St", "Maryland", "Grand Canyon",
+      "Missouri", "Drake", "Texas Tech", "UNCW", "Kansas", "Arkansas", "St John's", "Omaha",
+      "Duke", "Mnt St Mary's", "Miss St", "Baylor", "Oregon", "Liberty", "Arizona", "Akron",
+      "BYU", "VCU", "Wisconsin", "Montana", "St Mary's", "Vanderbilt", "Alabama", "Robert Morris",
+      "Houston", "SIUE", "Gonzaga", "Georgia", "Clemson", "McNeese", "Purdue", "High Point",
+      "Illinois", "Xavier", "Kentucky", "Troy", "UCLA", "Utah St", "Tennessee", "Wofford"
     ].freeze
 
     BRACKET_NAMES = [
@@ -80,21 +89,16 @@ module Scenarios
     end
 
     def ensure_teams
-      return if Team.count == 64
-
-      Team.delete_all
-      load_teams_from_csv
-    end
-
-    def load_teams_from_csv
-      csv_path = Rails.root.join("data/teams.csv")
-      CSV.read(csv_path.to_s).each_with_index do |row, i|
-        name = row.first
+      TEAM_NAMES.each_with_index do |name, i|
         starting_slot = i + 64
         seed = Team.seed_for_slot(starting_slot)
         region = i / 16
 
-        Team.create!(starting_slot:, name:, seed:, region:)
+        team = Team.find_or_create_by!(starting_slot: starting_slot) do |t|
+          t.seed = seed
+          t.region = region
+        end
+        team.update!(name: name)
       end
     end
 

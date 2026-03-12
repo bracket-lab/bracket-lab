@@ -1,0 +1,23 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Manage Teams</h1>
+      <div class="flex gap-3">
+        <%= link_to "Import Teams", import_admin_teams_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+
+    <p class="text-sm text-gray-500 mb-6">Edit individual team names below, or use Import to set all 64 at once.</p>
+
+    <% Team::REGION_NAMES.each_with_index do |region, region_index| %>
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-3 capitalize"><%= region %></h2>
+        <div>
+          <% @teams.select { |t| t.region == region.to_s }.each_with_index do |team, i| %>
+            <%= render partial: "admin/teams/team", locals: { team: team, zebra: i.odd? } %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
