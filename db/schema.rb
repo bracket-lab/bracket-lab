@@ -11,14 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.1].define(version: 2026_03_12_230008) do
-  create_table "_litestream_lock", id: false, force: :cascade do |t|
-    t.integer "id"
-  end
-
-  create_table "_litestream_seq", id: :integer, default: nil, force: :cascade do |t|
-    t.integer "seq"
-  end
-
   create_table "brackets", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "game_decisions", null: false

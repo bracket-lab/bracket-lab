@@ -9,7 +9,7 @@
 
     <p class="text-sm text-gray-500 mb-6">Edit individual team names below, or use Import to set all 64 at once.</p>
 
-    <% Tournament.field_64.region_labels.each_with_index do |region, region_index| %>
+    <% Current.tournament.region_labels.each_with_index do |region, region_index| %>
       <div class="mb-8">
         <h2 class="text-lg font-semibold mb-3"><%= region %></h2>
         <div>
