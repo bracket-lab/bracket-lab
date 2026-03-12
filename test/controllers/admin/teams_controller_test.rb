@@ -63,7 +63,7 @@ class Admin::TeamsControllerTest < ActionDispatch::IntegrationTest
 
   test "import_preview validates unique names" do
     sign_in_as(@admin)
-    names = (["Duplicate"] * 2 + (3..64).map { |i| "Team #{i}" }).join("\n")
+    names = ([ "Duplicate" ] * 2 + (3..64).map { |i| "Team #{i}" }).join("\n")
     post import_preview_admin_teams_url, params: { team_names: names }
     assert_response :unprocessable_entity
   end
