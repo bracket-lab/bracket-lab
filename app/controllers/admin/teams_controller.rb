@@ -30,7 +30,7 @@ class Admin::TeamsController < Admin::BaseController
   end
 
   def import
-    @current_names = Team.order(:starting_slot).pluck(:name).join("\n")
+    @current_names = params[:team_names].presence || Team.order(:starting_slot).pluck(:name).join("\n")
   end
 
   def import_preview
@@ -38,12 +38,10 @@ class Admin::TeamsController < Admin::BaseController
     @errors = validate_import(@names)
 
     if @errors.any?
-      render turbo_stream: turbo_stream.update("import_preview",
-        partial: "admin/teams/import_errors"), status: :unprocessable_entity
+      @current_names = params[:team_names].to_s
+      render :import, status: :unprocessable_entity
     else
       @preview = build_preview(@names)
-      render turbo_stream: turbo_stream.update("import_preview",
-        partial: "admin/teams/import_preview")
     end
   end
 
