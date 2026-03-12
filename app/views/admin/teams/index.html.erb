@@ -9,11 +9,11 @@
 
     <p class="text-sm text-gray-500 mb-6">Edit individual team names below, or use Import to set all 64 at once.</p>
 
-    <% Team::REGION_NAMES.each_with_index do |region, region_index| %>
+    <% Tournament.field_64.region_labels.each_with_index do |region, region_index| %>
       <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-3 capitalize"><%= region %></h2>
+        <h2 class="text-lg font-semibold mb-3"><%= region %></h2>
         <div>
-          <% @teams.select { |t| t.region == region.to_s }.each_with_index do |team, i| %>
+          <% @teams.select { |t| t.region == region_index }.each_with_index do |team, i| %>
             <%= render partial: "admin/teams/team", locals: { team: team, zebra: i.odd? } %>
           <% end %>
         </div>

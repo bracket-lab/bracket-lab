@@ -5,7 +5,7 @@
     <%= turbo_frame_tag "import_content", data: { turbo_cache: "false" } do %>
       <h2 class="text-lg font-medium mb-4">Preview Import</h2>
 
-      <% Team::REGION_NAMES.each do |region| %>
+      <% Tournament.field_64.region_labels.each_with_index do |region, region_index| %>
         <div class="mb-4">
           <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2"><%= region %></h3>
           <table class="min-w-full divide-y divide-gray-200">
@@ -17,7 +17,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-              <% @preview.select { |p| p[:team].region == region.to_s }.each do |entry| %>
+              <% @preview.select { |p| p[:team].region == region_index }.each do |entry| %>
                 <tr class="<%= 'bg-green-50' if entry[:changed] %>">
                   <td class="px-3 py-2 text-sm text-gray-500">#<%= entry[:team].seed %></td>
                   <td class="px-3 py-2 text-sm <%= entry[:changed] ? 'text-gray-400 line-through' : 'text-gray-900' %>">

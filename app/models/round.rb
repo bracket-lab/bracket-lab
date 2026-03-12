@@ -29,7 +29,7 @@ class Round
   end
 
   def regions
-    Team.region_names if [ "Final Four", "Champion" ].exclude?(name)
+    Current.tournament.region_labels if [ "Final Four", "Champion" ].exclude?(name)
   end
 
   private

@@ -66,12 +66,10 @@ class TournamentTest < ActiveSupport::TestCase
 
   test "round_for calculations" do
     exp_games = [ 1, 8, 5, 4, 6, 3, 7, 2 ].map do |seed|
-      Team.east_region.find_by!(seed:).first_game
+      Team.where(region: 2).find_by!(seed:).first_game
     end
 
-    [ :east, Team.regions[:east] ].each do |region|
-      assert_equal exp_games.map(&:slot), @tournament.round_for(1, region).map(&:slot)
-    end
+    assert_equal exp_games.map(&:slot), @tournament.round_for(1, 2).map(&:slot)
   end
 
   test "round_for games in semi-final games" do
@@ -85,8 +83,8 @@ class TournamentTest < ActiveSupport::TestCase
 
   test "round_for other rounds" do
     (2..4).each do |round|
-      exp_games = @tournament.round_for(round - 1, :midwest).map(&:next_game).uniq
-      assert_equal exp_games.map(&:slot), @tournament.round_for(round, :midwest).map(&:slot)
+      exp_games = @tournament.round_for(round - 1, 3).map(&:next_game).uniq
+      assert_equal exp_games.map(&:slot), @tournament.round_for(round, 3).map(&:slot)
     end
   end
 

@@ -5,10 +5,10 @@ class TeamTest < ActiveSupport::TestCase
     @tournament = Tournament.field_64
   end
 
-  test "region names are normalized to keys" do
-    Team.region_names.each do |region_name|
-      assert region_name.is_a?(Symbol)
-    end
+  test "region labels come from tournament" do
+    labels = Tournament.field_64.region_labels
+    assert_equal 4, labels.size
+    labels.each { |label| assert label.is_a?(String) }
   end
 
   test "always ordered by starting slot" do
@@ -103,7 +103,7 @@ class TeamTest < ActiveSupport::TestCase
       starting_slot: 999,
       name: existing_team.name,
       seed: 1,
-      region: :south
+      region: 0
     )
     assert_not new_team.valid?
     assert_includes new_team.errors[:name], "has already been taken"

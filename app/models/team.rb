@@ -1,22 +1,15 @@
 class Team < ApplicationRecord
-  REGION_NAMES = [ :south, :west, :east, :midwest ]
   SEED_ORDER = [ 1, 16, 8, 9, 5, 12, 4, 13, 6, 11, 3, 14, 7, 10, 2, 15 ].freeze
 
   validates :name, presence: true, length: { maximum: 15 }, uniqueness: true
 
   default_scope { order(starting_slot: :asc) }
 
-  enum :region, REGION_NAMES, suffix: true
-
-  def self.region_names
-    REGION_NAMES
-  end
-
   def self.placeholder_name_for(starting_slot)
     index = starting_slot - 64
-    region = REGION_NAMES[index / 16]
+    region_label = Tournament.field_64.region_labels[index / 16]
     seed = seed_for_slot(starting_slot)
-    "#{region.to_s.titleize} #{seed}"
+    "#{region_label} #{seed}"
   end
 
   def self.seed_for_slot(starting_slot)
