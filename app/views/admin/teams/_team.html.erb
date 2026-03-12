@@ -2,8 +2,8 @@
   <div class="flex items-center gap-3 py-2" data-controller="inline-edit">
     <span class="w-12 text-sm font-semibold text-gray-500 text-right">#<%= team.seed %></span>
 
-    <div data-inline-edit-target="show" class="flex items-center gap-2 flex-1<%= ' hidden' if team.errors.any? %>">
-      <span class="text-sm flex-1"><%= team.name %></span>
+    <div data-inline-edit-target="show" class="flex items-center gap-2<%= ' hidden' if team.errors.any? %>">
+      <span class="text-sm w-40"><%= team.name %></span>
       <button type="button" data-action="inline-edit#edit" class="link link-primary text-sm">Edit</button>
     </div>
 
