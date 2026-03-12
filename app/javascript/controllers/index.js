@@ -21,3 +21,6 @@ application.register("bracket-picker", BracketPickerController)
 
 import InlineEditController from "./inline_edit_controller"
 application.register("inline-edit", InlineEditController)
+
+import LineCounterController from "./line_counter_controller"
+application.register("line-counter", LineCounterController)
