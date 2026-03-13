@@ -74,4 +74,45 @@ class InviteAcceptancesIntegrationTest < ActionDispatch::IntegrationTest
     assert_not_nil invite.used_at, "Invite should be marked as used"
     assert User.exists?(email_address: invite.email_address), "User should be created"
   end
+
+  test "invite acceptance transfers payment credits to new user" do
+    invite = Invite.create!(
+      email_address: "credited_#{SecureRandom.hex(4)}@example.com",
+      full_name: "Credited User",
+      token: SecureRandom.hex(16),
+      expires_at: 7.days.from_now,
+      created_by: users(:admin_user),
+      payment_credits: 3
+    )
+
+    post invite_acceptances_path(token: invite.token), params: {
+      user: {
+        password: "securepassword123",
+        password_confirmation: "securepassword123"
+      }
+    }
+
+    user = User.find_by(email_address: invite.email_address)
+    assert_equal 3, user.payment_credits
+  end
+
+  test "invite acceptance with zero credits leaves user at zero" do
+    invite = Invite.create!(
+      email_address: "nocredit_#{SecureRandom.hex(4)}@example.com",
+      full_name: "No Credit User",
+      token: SecureRandom.hex(16),
+      expires_at: 7.days.from_now,
+      created_by: users(:admin_user)
+    )
+
+    post invite_acceptances_path(token: invite.token), params: {
+      user: {
+        password: "securepassword123",
+        password_confirmation: "securepassword123"
+      }
+    }
+
+    user = User.find_by(email_address: invite.email_address)
+    assert_equal 0, user.payment_credits
+  end
 end

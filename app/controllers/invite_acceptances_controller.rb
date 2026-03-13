@@ -14,7 +14,7 @@ class InviteAcceptancesController < ApplicationController
   end
 
   def create
-    @user = User.create(user_params.merge(email_address: @invite.email_address, full_name: @invite.full_name))
+    @user = User.create(user_params.merge(email_address: @invite.email_address, full_name: @invite.full_name, payment_credits: @invite.payment_credits))
 
     if @user.valid?
       @invite.update!(used_at: Time.current)
