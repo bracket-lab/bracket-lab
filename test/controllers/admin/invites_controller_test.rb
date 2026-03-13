@@ -104,12 +104,6 @@ class Admin::InvitesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should show invite" do
-    sign_in_as(@admin)
-    get admin_invite_url(invites(:pending))
-    assert_response :success
-  end
-
   test "should destroy pending invite" do
     sign_in_as(@admin)
     assert_difference("Invite.count", -1) do

@@ -19,10 +19,6 @@ class Admin::InvitesController < Admin::BaseController
     end
   end
 
-  def show
-    @invite = Invite.includes(:created_by).find(params[:id])
-  end
-
   def update
     @invite = Invite.find(params[:id])
 
