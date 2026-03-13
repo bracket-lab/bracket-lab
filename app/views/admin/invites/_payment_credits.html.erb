@@ -1,6 +1,21 @@
 <%= turbo_frame_tag invite do %>
-  <div>
+  <div data-controller="inline-edit">
     <label class="text-sm font-medium text-gray-500">Payment Credits</label>
-    <p class="mt-1"><%= invite.payment_credits %></p>
+
+    <div data-inline-edit-target="show" class="mt-1 flex items-center gap-2">
+      <span><%= invite.payment_credits %></span>
+      <button type="button" data-action="inline-edit#edit" class="link link-primary text-sm">Edit</button>
+    </div>
+
+    <div data-inline-edit-target="edit" class="mt-1 flex items-center gap-2 hidden">
+      <%= form_with(model: [:admin, invite]) do |form| %>
+        <%= form.number_field :payment_credits, min: 0, class: "input input-bordered input-sm w-20" %>
+        <%= form.submit "Save", class: "btn btn-primary btn-sm" %>
+        <button type="button" data-action="inline-edit#cancel" class="btn btn-ghost btn-sm">Cancel</button>
+      <% end %>
+      <% if invite.errors.any? %>
+        <span class="text-error text-sm"><%= invite.errors.full_messages.to_sentence %></span>
+      <% end %>
+    </div>
   </div>
 <% end %>

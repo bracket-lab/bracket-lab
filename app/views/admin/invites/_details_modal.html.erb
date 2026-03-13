@@ -33,6 +33,10 @@
     </div>
 
     <% if invite.pending? %>
+      <%= render "admin/invites/payment_credits", invite: invite %>
+    <% end %>
+
+    <% if invite.pending? %>
       <div>
         <label class="text-sm font-medium text-gray-500">Accept URL</label>
         <div class="mt-1 flex items-center gap-2">

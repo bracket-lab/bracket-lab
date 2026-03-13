@@ -50,6 +50,37 @@ class Admin::InvitesTest < ApplicationSystemTestCase
     assert_text "Full name can't be blank"
   end
 
+  test "admin can edit payment credits inline in invite modal" do
+    sign_in_as(@admin)
+    visit admin_invites_path
+
+    invite = invites(:valid_invite)
+
+    # Open the details modal
+    find("button[onclick*='invite_details_#{invite.id}']").click
+
+    # Verify initial credits display
+    within "#invite_details_#{invite.id}" do
+      assert_text "Payment Credits"
+      assert_text "0"
+
+      # Click Edit to switch to edit mode
+      click_on "Edit"
+
+      # Fill in new credits value
+      fill_in "invite[payment_credits]", with: "3"
+      click_on "Save"
+
+      # Verify updated value is displayed
+      assert_text "3"
+      assert_no_field "invite[payment_credits]"
+    end
+
+    # Verify persistence
+    invite.reload
+    assert_equal 3, invite.payment_credits
+  end
+
   test "admin can see invalid entries in preview" do
     sign_in_as(@admin)
     visit bulk_new_admin_invites_path
