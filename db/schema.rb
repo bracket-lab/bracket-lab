@@ -70,7 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_230008) do
     t.datetime "created_at", null: false
     t.bigint "game_decisions", default: 0, null: false
     t.bigint "game_mask", default: 0, null: false
-    t.text "region_labels", default: "[\"South\",\"West\",\"East\",\"Midwest\"]", null: false
+    t.json "region_labels", default: ["South", "West", "East", "Midwest"], null: false
     t.integer "state", default: 0, null: false
     t.datetime "updated_at", null: false
   end

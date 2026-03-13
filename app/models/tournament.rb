@@ -4,8 +4,6 @@ class Tournament < ApplicationRecord
   REGION_NAMES = [ "South", "West", "East", "Midwest" ].freeze
   NUM_REGIONS = 4
 
-  serialize :region_labels, coder: JSON
-
   validate :region_labels_must_be_valid_permutation
 
   after_update do |tournament|
