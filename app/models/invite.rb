@@ -7,6 +7,7 @@ class Invite < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :token, presence: true, uniqueness: true
   validates :expires_at, presence: true
+  validates :payment_credits, numericality: { greater_than_or_equal_to: 0 }
 
   before_validation :set_token_and_expiration, on: :create
 
