@@ -33,7 +33,9 @@
     </div>
 
     <% if invite.pending? %>
-      <%= render "admin/invites/payment_credits", invite: invite %>
+      <div>
+        <%= render "admin/invites/payment_credits", invite: invite %>
+      </div>
     <% end %>
 
     <% if invite.pending? %>
