@@ -20,6 +20,39 @@
       </div>
     </div>
 
+    <div class="mb-6 p-4 bg-base-200 rounded-lg" data-controller="inline-edit">
+      <div data-inline-edit-target="show" class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold">Region Order</h2>
+        <span class="text-sm text-gray-500"><%= Current.tournament.region_labels.join(", ") %></span>
+        <button type="button" data-action="inline-edit#edit" class="link link-primary text-sm">Edit</button>
+      </div>
+
+      <div data-inline-edit-target="edit" class="hidden">
+        <div class="flex items-center gap-3 mb-3">
+          <h2 class="text-lg font-semibold">Region Order</h2>
+          <span class="text-sm text-gray-500">1=top-left, 2=bottom-left, 3=top-right, 4=bottom-right</span>
+        </div>
+        <%= form_tag update_region_labels_admin_tournament_path, method: :post do %>
+          <div class="space-y-2">
+            <% Current.tournament.region_labels.each_with_index do |label, index| %>
+              <div class="flex items-center gap-3">
+                <span class="text-sm font-mono text-gray-400 w-6"><%= index + 1 %></span>
+                <select name="region_labels[]" class="select select-bordered select-sm">
+                  <% Tournament::REGION_NAMES.each do |name| %>
+                    <option value="<%= name %>" <%= 'selected' if name == label %>><%= name %></option>
+                  <% end %>
+                </select>
+              </div>
+            <% end %>
+          </div>
+          <div class="mt-3 flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+            <button type="button" data-action="inline-edit#cancel" class="btn btn-ghost btn-sm">Cancel</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <% Current.tournament.rounds.each do |round| %>
         <div class="card bg-base-100 shadow">

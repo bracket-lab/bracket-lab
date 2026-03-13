@@ -46,4 +46,4 @@
 # Nix/direnv
 .direnv/
 
-/docs/
+docs/

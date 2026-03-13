@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_03_11_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_12_230008) do
   create_table "brackets", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "game_decisions", null: false
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_03_11_000001) do
     t.datetime "created_at", null: false
     t.bigint "game_decisions", default: 0, null: false
     t.bigint "game_mask", default: 0, null: false
+    t.json "region_labels", default: ["South", "West", "East", "Midwest"], null: false
     t.integer "state", default: 0, null: false
     t.datetime "updated_at", null: false
   end

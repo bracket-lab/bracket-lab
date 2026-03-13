@@ -1,6 +1,10 @@
 class Tournament < ApplicationRecord
   TIP_OFF = Time.iso8601(ENV.fetch("TIP_OFF", "2026-03-19T16:00:00Z"))
   NUM_ROUNDS = 6
+  REGION_NAMES = [ "South", "West", "East", "Midwest" ].freeze
+  NUM_REGIONS = 4
+
+  validate :region_labels_must_be_valid_permutation
 
   after_update do |tournament|
     UpdateBestFinishesJob.perform_later if tournament.num_games_remaining < 16
@@ -73,14 +77,10 @@ class Tournament < ApplicationRecord
   def game_slots_for(round_number, region = nil)
     game_ids = tree.game_slots_for(round_number)
 
-    # regions can symbols (names) or ints (enum idx)
-    region = Team.regions[region] if region.is_a?(Symbol)
-
-    if region.present? && game_ids.size >= Team.regions.size
-      slice_size = game_ids.size / Team.regions.size
-      slice_index = region
+    if !region.nil? && game_ids.size >= NUM_REGIONS
+      slice_size = game_ids.size / NUM_REGIONS
       slices = game_ids.each_slice(slice_size).to_a
-      slices[slice_index]
+      slices[region]
     else
       game_ids
     end
@@ -220,5 +220,11 @@ class Tournament < ApplicationRecord
 
     # Then mask off the MSB (for 64-bit integer)
     result & Bracket::MAX_INT64
+  end
+
+  def region_labels_must_be_valid_permutation
+    unless region_labels.is_a?(Array) && region_labels.sort == REGION_NAMES.sort
+      errors.add(:region_labels, "must be a permutation of the four region names")
+    end
   end
 end
