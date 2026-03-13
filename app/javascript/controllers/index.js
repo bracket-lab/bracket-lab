@@ -7,20 +7,23 @@ import { application } from "./application"
 import AdminTournamentController from "./admin_tournament_controller"
 application.register("admin-tournament", AdminTournamentController)
 
-import CountdownController from "./countdown_controller"
-application.register("countdown", CountdownController)
-
-import FilterBracketsController from "./filter_brackets_controller"
-application.register("filter-brackets", FilterBracketsController)
-
 import BracketFormController from "./bracket_form_controller"
 application.register("bracket-form", BracketFormController)
 
 import BracketPickerController from "./bracket_picker_controller"
 application.register("bracket-picker", BracketPickerController)
 
+import CountdownController from "./countdown_controller"
+application.register("countdown", CountdownController)
+
+import FilterBracketsController from "./filter_brackets_controller"
+application.register("filter-brackets", FilterBracketsController)
+
 import InlineEditController from "./inline_edit_controller"
 application.register("inline-edit", InlineEditController)
 
 import LineCounterController from "./line_counter_controller"
 application.register("line-counter", LineCounterController)
+
+import PullToRefreshController from "./pull_to_refresh_controller"
+application.register("pull-to-refresh", PullToRefreshController)
