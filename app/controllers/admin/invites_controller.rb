@@ -23,6 +23,30 @@ class Admin::InvitesController < Admin::BaseController
     @invite = Invite.includes(:created_by).find(params[:id])
   end
 
+  def update
+    @invite = Invite.find(params[:id])
+
+    if @invite.update(invite_params)
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            @invite, partial: "admin/invites/payment_credits", locals: { invite: @invite }
+          )
+        end
+        format.html { redirect_to admin_invites_url, notice: "Invite updated." }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            @invite, partial: "admin/invites/payment_credits", locals: { invite: @invite }
+          ), status: :unprocessable_entity
+        end
+        format.html { redirect_to admin_invites_url, alert: @invite.errors.full_messages.to_sentence }
+      end
+    end
+  end
+
   def destroy
     @invite = Invite.find(params[:id])
     if @invite.pending?
@@ -93,6 +117,6 @@ class Admin::InvitesController < Admin::BaseController
   private
 
   def invite_params
-    params.require(:invite).permit(:email_address, :full_name)
+    params.require(:invite).permit(:email_address, :full_name, :payment_credits)
   end
 end

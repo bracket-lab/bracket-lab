@@ -125,4 +125,13 @@ class Admin::InvitesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_invites_url
     assert_equal "Only pending invites can be deleted.", flash[:alert]
   end
+
+  test "should update payment_credits on invite" do
+    sign_in_as(@admin)
+    invite = invites(:valid_invite)
+    patch admin_invite_url(invite), params: { invite: { payment_credits: 3 } }
+    assert_redirected_to admin_invites_url
+    invite.reload
+    assert_equal 3, invite.payment_credits
+  end
 end
