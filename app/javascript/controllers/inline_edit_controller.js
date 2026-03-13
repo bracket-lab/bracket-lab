@@ -6,7 +6,7 @@ export default class extends Controller {
   edit() {
     this.showTarget.classList.add("hidden")
     this.editTarget.classList.remove("hidden")
-    this.editTarget.querySelector("input[type=text]")?.focus()
+    this.editTarget.querySelector("input[type=text], input[type=number]")?.focus()
   }
 
   cancel() {
