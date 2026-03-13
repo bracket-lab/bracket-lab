@@ -104,12 +104,6 @@ class Admin::InvitesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should show invite" do
-    sign_in_as(@admin)
-    get admin_invite_url(invites(:pending))
-    assert_response :success
-  end
-
   test "should destroy pending invite" do
     sign_in_as(@admin)
     assert_difference("Invite.count", -1) do
@@ -124,5 +118,14 @@ class Admin::InvitesControllerTest < ActionDispatch::IntegrationTest
     delete admin_invite_url(invites(:used_invite))
     assert_redirected_to admin_invites_url
     assert_equal "Only pending invites can be deleted.", flash[:alert]
+  end
+
+  test "should update payment_credits on invite" do
+    sign_in_as(@admin)
+    invite = invites(:valid_invite)
+    patch admin_invite_url(invite), params: { invite: { payment_credits: 3 } }
+    assert_redirected_to admin_invites_url
+    invite.reload
+    assert_equal 3, invite.payment_credits
   end
 end

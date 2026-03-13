@@ -26,7 +26,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :invites, only: [ :index, :new, :create, :show, :destroy ] do
+    resources :invites, only: [ :index, :new, :create, :update, :destroy ] do
       collection do
         get :bulk_new
         post :bulk_preview

@@ -42,6 +42,13 @@ class InviteTest < ActiveSupport::TestCase
     assert_equal 7.days.from_now.to_date, invite.expires_at.to_date
   end
 
+  test "payment_credits cannot be negative" do
+    invite = invites(:valid_invite)
+    invite.payment_credits = -1
+    assert_not invite.valid?
+    assert_includes invite.errors[:payment_credits], "must be greater than or equal to 0"
+  end
+
   test "valid_for_use? returns false when used" do
     invite = invites(:used_invite)
     assert invite.valid_for_use? == false
