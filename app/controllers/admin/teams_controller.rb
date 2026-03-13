@@ -1,6 +1,4 @@
 class Admin::TeamsController < Admin::BaseController
-  include ActionView::RecordIdentifier
-
   def index
     @teams = Team.all
   end
@@ -12,7 +10,7 @@ class Admin::TeamsController < Admin::BaseController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: turbo_stream.replace(
-            dom_id(@team), partial: "admin/teams/team", locals: { team: @team }
+            @team, partial: "admin/teams/team", locals: { team: @team }
           )
         end
         format.html { redirect_to admin_teams_path, notice: "Team updated." }
@@ -21,7 +19,7 @@ class Admin::TeamsController < Admin::BaseController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: turbo_stream.replace(
-            dom_id(@team), partial: "admin/teams/team", locals: { team: @team }
+            @team, partial: "admin/teams/team", locals: { team: @team }
           ), status: :unprocessable_entity
         end
         format.html { redirect_to admin_teams_path, alert: @team.errors.full_messages.to_sentence }
