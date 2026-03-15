@@ -52,12 +52,21 @@ class Admin::TeamsController < Admin::BaseController
     end
 
     Team.transaction do
-      Team.order(:starting_slot).each_with_index do |team, i|
+      teams = Team.order(:starting_slot).to_a
+
+      teams.each_with_index do |team, i|
+        team.update_columns(name: "__import_#{i}")
+      end
+
+      teams.each_with_index do |team, i|
         team.update!(name: names[i])
       end
     end
 
     redirect_to admin_teams_path, notice: "All 64 team names updated."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to import_admin_teams_path(team_names: names.join("\n")),
+      alert: e.record.errors.full_messages.to_sentence
   end
 
   private

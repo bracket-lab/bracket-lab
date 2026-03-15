@@ -83,6 +83,18 @@ class Admin::TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "import_apply succeeds when swapping existing team names" do
+    sign_in_as(@admin)
+    current_names = Team.order(:starting_slot).pluck(:name)
+    swapped_names = current_names.dup
+    swapped_names[0], swapped_names[1] = swapped_names[1], swapped_names[0]
+    post import_apply_admin_teams_url, params: { names: swapped_names }
+    assert_redirected_to admin_teams_url
+    teams = Team.order(:starting_slot)
+    assert_equal "Alabama St", teams[0].name
+    assert_equal "Auburn", teams[1].name
+  end
+
   test "import_apply updates all 64 team names" do
     sign_in_as(@admin)
     new_names = (1..64).map { |i| "New #{i}" }
