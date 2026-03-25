@@ -52,7 +52,7 @@ module Scenarios
         @num_games = num_games.clamp(0, 63)
         @gap_slots = gap_slots
         @rng = seed ? Random.new(seed) : Random
-        @winners = {}
+        @winners = {} # slot => winning team's starting_slot
       end
 
       # Generate tournament results and return a Result struct
@@ -118,6 +118,7 @@ module Scenarios
       end
 
       def team_at(slot)
+        # Slots >= 64 are team starting_slots; lower slots reference previous game winners
         if slot >= 64
           slot
         else

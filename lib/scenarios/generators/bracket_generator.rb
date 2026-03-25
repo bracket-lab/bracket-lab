@@ -45,7 +45,7 @@ module Scenarios
         @style = style
         @chances = UPSET_CHANCES[style]
         @rng = seed ? Random.new(seed) : Random
-        @winners = {}
+        @winners = {} # slot => winning team's starting_slot
       end
 
       # Generate a complete bracket and return the game_decisions BigInt

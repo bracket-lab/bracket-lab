@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 module Scenarios
+  # Base class for development scenarios that set up test data.
+  # Subclasses implement #setup to create specific tournament states.
+  #
+  # Usage:
+  #   Scenarios::States::PreSelection.new.call
+  #
   class Base
     USERS = [
       { full_name: "Admin User", email_address: "admin@example.com", admin: true },
@@ -102,6 +108,7 @@ module Scenarios
     end
 
     def distribute_users_for_brackets
+      # 5 users get 3 brackets, 5 users get 2 brackets = 25 total
       all_users = User.all.to_a
       distribution = []
       all_users.first(5).each do |user|
@@ -114,6 +121,7 @@ module Scenarios
     end
 
     def distribute_styles_for_brackets
+      # Mix of bracket styles: 10 balanced, 8 chalk, 7 upset
       styles = []
       styles += Array.new(10, :balanced)
       styles += Array.new(8, :chalk)

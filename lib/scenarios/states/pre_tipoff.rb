@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # After Selection Sunday, before tip-off. Teams selected, brackets editable.
     class PreTipoff < Base
       private
 

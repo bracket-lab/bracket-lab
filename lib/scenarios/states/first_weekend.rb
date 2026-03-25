@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # First weekend complete — all Round 1 and Round 2 games decided (48 games).
     class FirstWeekend < Base
       private
 

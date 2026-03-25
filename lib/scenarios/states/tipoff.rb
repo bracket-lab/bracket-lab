@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # Tournament started, brackets locked, no games played yet.
     class Tipoff < Base
       private
 

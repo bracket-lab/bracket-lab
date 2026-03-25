@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # Tournament finished — all 63 games decided, champion crowned.
     class Completed < Base
       private
 

@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # Early tournament — ~10 Round 1 games decided.
     class SomeGames < Base
       private
 

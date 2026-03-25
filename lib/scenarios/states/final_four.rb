@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # Final Four — 60 games decided, only 3 remain (slots 1-3).
     class FinalFour < Base
       private
 

@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # Mid-tournament — Sweet 16 partially complete with non-adjacent gaps (slots 10, 13).
     class MidTournament < Base
       private
 

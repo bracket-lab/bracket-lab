@@ -2,6 +2,7 @@
 
 module Scenarios
   module States
+    # Before Selection Sunday. Teams not yet selected, no brackets.
     class PreSelection < Base
       private
 
