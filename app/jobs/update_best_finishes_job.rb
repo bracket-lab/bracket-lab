@@ -21,7 +21,9 @@ class UpdateBestFinishesJob < ApplicationJob
     elimination = Elimination.new
     elimination.results(tournament.decision_team_slots.dup)
 
-    OutcomeRanking.insert_all(elimination.outcomes) if elimination.outcomes.any?
+    OutcomeRanking.transaction do
+      elimination.outcomes.each(&:save!)
+    end
 
     tournament.update!(outcomes_calculated: true)
   end

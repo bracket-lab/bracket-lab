@@ -134,7 +134,7 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
   def best_finishes_from(outcomes)
     finishes = {}
     outcomes.each do |o|
-      finishes[o[:bracket_id]] = [ o[:rank], finishes[o[:bracket_id]] || 6 ].min
+      finishes[o.bracket_id] = [ o.rank, finishes[o.bracket_id] || 6 ].min
     end
     finishes
   end

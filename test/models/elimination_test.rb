@@ -21,12 +21,20 @@ class EliminationTest < ActiveSupport::TestCase
     assert @elimination.outcomes.any?
   end
 
+  test "outcomes are OutcomeRanking instances" do
+    @elimination.results(@tournament.decision_team_slots.dup)
+
+    @elimination.outcomes.each do |outcome|
+      assert_kind_of OutcomeRanking, outcome
+    end
+  end
+
   test "distinct outcomes match 2^N remaining games" do
     @elimination.results(@tournament.decision_team_slots.dup)
 
     remaining = @tournament.num_games_remaining
     expected_scenarios = 2**remaining
-    distinct_decisions = @elimination.outcomes.map { |o| o[:game_decisions] }.uniq.size
+    distinct_decisions = @elimination.outcomes.map(&:game_decisions).uniq.size
     assert_equal expected_scenarios, distinct_decisions
   end
 
@@ -34,19 +42,8 @@ class EliminationTest < ActiveSupport::TestCase
     @elimination.results(@tournament.decision_team_slots.dup)
 
     @elimination.outcomes.each do |outcome|
-      assert outcome[:rank].between?(1, 5),
-        "Rank #{outcome[:rank]} should be between 1 and 5"
-    end
-  end
-
-  test "each outcome has game_decisions, bracket_id, rank, and points" do
-    @elimination.results(@tournament.decision_team_slots.dup)
-
-    @elimination.outcomes.each do |outcome|
-      assert outcome.key?(:game_decisions), "Missing game_decisions"
-      assert outcome.key?(:bracket_id), "Missing bracket_id"
-      assert outcome.key?(:rank), "Missing rank"
-      assert outcome.key?(:points), "Missing points"
+      assert outcome.rank.between?(1, 5),
+        "Rank #{outcome.rank} should be between 1 and 5"
     end
   end
 
@@ -56,8 +53,8 @@ class EliminationTest < ActiveSupport::TestCase
     perfect = brackets(:perfect)
     clone = brackets(:perfect_clone)
 
-    perfect_ranks = @elimination.outcomes.select { |o| o[:bracket_id] == perfect.id }.map { |o| o[:rank] }
-    clone_ranks = @elimination.outcomes.select { |o| o[:bracket_id] == clone.id }.map { |o| o[:rank] }
+    perfect_ranks = @elimination.outcomes.select { |o| o.bracket_id == perfect.id }.map(&:rank)
+    clone_ranks = @elimination.outcomes.select { |o| o.bracket_id == clone.id }.map(&:rank)
 
     assert_equal perfect_ranks.sort, clone_ranks.sort
   end
