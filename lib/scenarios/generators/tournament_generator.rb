@@ -17,35 +17,46 @@ module Scenarios
     # Within a round, games can complete in any order.
     #
     # Usage:
-    #   TournamentGenerator.new(32).call   # Complete Round 1 only
-    #   TournamentGenerator.new(48).call   # Complete Round 1 + Round 2
-    #   TournamentGenerator.new(50, gap_slots: [10, 13]).call  # Mid-tournament with specific Sweet 16 games
-    #   TournamentGenerator.new(63).call   # Complete tournament
+    #   TournamentGenerator.new(32, seed: 42).call   # Complete Round 1 only
+    #   TournamentGenerator.new(48, seed: 42).call   # Complete Round 1 + Round 2
+    #   TournamentGenerator.new(50, seed: 42, gap_slots: [10, 13]).call  # Mid-tournament with specific Sweet 16 games
+    #   TournamentGenerator.new(63, seed: 42).call   # Complete tournament
     #
     class TournamentGenerator
-      # Round structure: [start_slot, end_slot, cumulative_games]
+      Result = Struct.new(:decisions, :mask, keyword_init: true) do
+        def apply_to(tournament)
+          tournament.update!(
+            state: :in_progress,
+            game_decisions: decisions,
+            game_mask: mask
+          )
+        end
+      end
+
       ROUNDS = [
-        { name: "Round 1",    slots: 32..63, games: 32, cumulative: 32 },
-        { name: "Round 2",    slots: 16..31, games: 16, cumulative: 48 },
-        { name: "Sweet 16",   slots: 8..15,  games: 8,  cumulative: 56 },
-        { name: "Elite 8",    slots: 4..7,   games: 4,  cumulative: 60 },
-        { name: "Final Four", slots: 2..3,   games: 2,  cumulative: 62 },
-        { name: "Championship", slots: 1..1, games: 1,  cumulative: 63 }
+        { name: "Round 1",      slots: 32..63, games: 32, cumulative: 32 },
+        { name: "Round 2",      slots: 16..31, games: 16, cumulative: 48 },
+        { name: "Sweet 16",     slots: 8..15,  games: 8,  cumulative: 56 },
+        { name: "Elite 8",      slots: 4..7,   games: 4,  cumulative: 60 },
+        { name: "Final Four",   slots: 2..3,   games: 2,  cumulative: 62 },
+        { name: "Championship", slots: 1..1,   games: 1,  cumulative: 63 }
       ].freeze
 
       attr_reader :num_games, :gap_slots
 
       # @param num_games [Integer] Number of games to complete (1-63)
+      # @param seed [Integer, nil] Random seed for deterministic results
       # @param gap_slots [Array<Integer>] For partial rounds, specific slots to complete
       #   Used for mid_tournament scenario to ensure non-adjacent Sweet 16 games
-      def initialize(num_games, gap_slots: nil)
+      def initialize(num_games, seed: nil, gap_slots: nil)
         @num_games = num_games.clamp(0, 63)
         @gap_slots = gap_slots
-        @winners = {} # slot => winning team's starting_slot
+        @rng = seed ? Random.new(seed) : Random
+        @winners = {}
       end
 
-      # Generate tournament results and update the Tournament model
-      # @return [Tournament] The updated tournament
+      # Generate tournament results and return a Result struct
+      # @return [Result] A struct with decisions and mask integers
       def call
         decisions = 0
         mask = 0
@@ -66,7 +77,7 @@ module Scenarios
           end
         end
 
-        update_tournament(decisions, mask)
+        Result.new(decisions: decisions, mask: mask)
       end
 
       private
@@ -76,13 +87,10 @@ module Scenarios
         all_slots = round[:slots].to_a
 
         if games_remaining >= round[:games]
-          # Complete the whole round
           all_slots
         elsif gap_slots.present? && slots_overlap?(all_slots, gap_slots)
-          # Use specified gap_slots for this partial round
           gap_slots.select { |s| all_slots.include?(s) }
         else
-          # Default: take first N slots in the round
           all_slots.first(games_remaining)
         end
       end
@@ -95,18 +103,14 @@ module Scenarios
         left_slot = slot * 2
         right_slot = slot * 2 + 1
 
-        # Get the teams playing in this game
         left_team = team_at(left_slot)
         right_team = team_at(right_slot)
 
-        # Determine winner using GameOutcome
         left_seed = Team.seed_for_slot(left_team)
         right_seed = Team.seed_for_slot(right_team)
 
-        # decision: 0 = left wins, 1 = right wins
         decision = pick_winner(left_seed, right_seed)
 
-        # Record winner for later rounds
         winning_team = decision.zero? ? left_team : right_team
         @winners[slot] = winning_team
 
@@ -114,8 +118,6 @@ module Scenarios
       end
 
       def team_at(slot)
-        # Round 1 children are team starting_slots (64-127)
-        # Later rounds reference previous game winners
         if slot >= 64
           slot
         else
@@ -124,31 +126,13 @@ module Scenarios
       end
 
       def pick_winner(left_seed, right_seed)
-        # Determine which team is the favorite
         if left_seed <= right_seed
-          # Left is favorite (lower seed = better)
-          favorite_wins = GameOutcome.higher_seed_wins?(left_seed, right_seed)
+          favorite_wins = GameOutcome.higher_seed_wins?(left_seed, right_seed, rng: @rng)
           favorite_wins ? 0 : 1
         else
-          # Right is favorite
-          favorite_wins = GameOutcome.higher_seed_wins?(right_seed, left_seed)
+          favorite_wins = GameOutcome.higher_seed_wins?(right_seed, left_seed, rng: @rng)
           favorite_wins ? 1 : 0
         end
-      end
-
-      def update_tournament(decisions, mask)
-        tournament = Tournament.field_64
-        tournament.game_decisions = decisions
-        tournament.game_mask = mask
-
-        # Transition through states as needed
-        if mask.positive?
-          tournament.set_teams! if tournament.pre_selection?
-          tournament.start! if tournament.not_started?
-        end
-
-        tournament.save!
-        tournament
       end
     end
   end
