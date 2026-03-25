@@ -70,7 +70,7 @@ class EliminationTest < ActiveSupport::TestCase
   end
 
   test "does not calculate rankings when too many games remain" do
-    @tournament.update!(game_decisions: 0, game_mask: 0)
+    set_tournament_state(:tipoff)
     slots = Array.new(16) { |i| i * 2 }
 
     @elimination.results(slots)

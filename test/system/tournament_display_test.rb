@@ -6,9 +6,7 @@ class TournamentDisplayTest < ApplicationSystemTestCase
   end
 
   test "game_results page renders tournament without React" do
-    # game_results requires tournament to be started (in_progress or completed)
-    # Update the primary tournament record to be in_progress
-    Tournament.field_64.update!(state: :in_progress)
+    set_tournament_state(:tipoff)
 
     sign_in_as(@user)
     visit game_results_path
@@ -26,8 +24,7 @@ class TournamentDisplayTest < ApplicationSystemTestCase
   end
 
   test "bracket show page renders with pick styling classes available" do
-    # bracket show uses ERB rendering (read-only view)
-    Tournament.field_64.update!(state: :not_started)
+    set_tournament_state(:pre_tipoff)
 
     bracket = brackets(:complete_bracket)
     sign_in_as(bracket.user)
@@ -42,8 +39,7 @@ class TournamentDisplayTest < ApplicationSystemTestCase
   end
 
   test "bracket new page still uses React (interactive)" do
-    # bracket new/edit uses React for interactivity
-    Tournament.field_64.update!(state: :not_started)
+    set_tournament_state(:pre_tipoff)
 
     sign_in_as(@user)
     visit new_bracket_path
@@ -66,7 +62,7 @@ class TournamentDisplayTest < ApplicationSystemTestCase
   end
 
   test "game_results page does not use React component" do
-    Tournament.field_64.update!(state: :in_progress)
+    set_tournament_state(:tipoff)
 
     sign_in_as(@user)
     visit game_results_path
