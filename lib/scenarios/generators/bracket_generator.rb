@@ -37,14 +37,15 @@ module Scenarios
         upset:    { close: 0.55, moderate: 0.45, strong: 0.30, heavy: 0.15 }
       }.freeze
 
-      def initialize(style = :balanced)
+      def initialize(style = :balanced, seed: nil)
         unless STYLES.include?(style)
           raise ArgumentError, "Unknown style: #{style}. Must be one of: #{STYLES.join(', ')}"
         end
 
         @style = style
         @chances = UPSET_CHANCES[style]
-        @winners = {} # slot => winning team's starting_slot
+        @rng = seed ? Random.new(seed) : Random
+        @winners = {}
       end
 
       # Generate a complete bracket and return the game_decisions BigInt
@@ -121,7 +122,7 @@ module Scenarios
         else @chances[:heavy]
         end
 
-        rand > upset_chance
+        @rng.rand > upset_chance
       end
     end
   end
