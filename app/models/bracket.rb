@@ -7,7 +7,6 @@ class Bracket < ApplicationRecord
   POINTS_PER_ROUND = [ 0, 1, 2, 3, 5, 8, 13 ].freeze
 
   belongs_to :user
-  has_one :possible_result, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :game_decisions, presence: true
@@ -66,11 +65,12 @@ class Bracket < ApplicationRecord
   end
 
   def eliminated?
-    best_finish && best_finish > 5
+    return false unless Current.tournament.display_eliminations?
+    best_finish.nil? || best_finish > 5
   end
 
   def best_finish
-    possible_result&.best_finish
+    OutcomeRanking.where(bracket_id: id).minimum(:rank)
   end
 
   def tree
