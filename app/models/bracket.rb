@@ -1,6 +1,8 @@
 class Bracket < ApplicationRecord
-  MAX_INT64 = 0x7FFFFFFFFFFFFFFF  # This is 2^63 - 1
-  FULL_BRACKET_MASK = MAX_INT64 << 1 # 0xFFFFFFFFFFFFFFFE
+  include ShiftedBitwiseColumns
+  shifted_bitwise_columns :game_decisions
+
+  FULL_BRACKET_MASK = ShiftedBitwiseColumns::MAX_INT64 << 1 # 0xFFFFFFFFFFFFFFFE
 
   POINTS_PER_ROUND = [ 0, 1, 2, 3, 5, 8, 13 ].freeze
 
@@ -75,26 +77,7 @@ class Bracket < ApplicationRecord
     TournamentTree.unmarshal(Current.tournament, game_decisions, FULL_BRACKET_MASK)
   end
 
-  # Override getter to shift bits left
-  def game_decisions
-    value = super
-    return 0 if value.nil?
-    value << 1
-  end
-
-  def game_decisions=(value)
-    self[:game_decisions] = unsigned_right_shift(Integer(value))
-  end
-
   private
-
-  def unsigned_right_shift(num)
-    # First perform the right shift
-    result = num >> 1
-
-    # Then mask off the MSB (for 64-bit integer)
-    result & MAX_INT64
-  end
 
   def sorted_four_team_slots
     Array(decision_team_slots[1..7]).uniq.reverse

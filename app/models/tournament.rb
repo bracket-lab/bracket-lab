@@ -1,4 +1,7 @@
 class Tournament < ApplicationRecord
+  include ShiftedBitwiseColumns
+  shifted_bitwise_columns :game_decisions, :game_mask
+
   TIP_OFF = Time.iso8601(ENV.fetch("TIP_OFF", "2026-03-19T16:00:00Z"))
   NUM_ROUNDS = 6
   REGION_NAMES = [ "South", "West", "East", "Midwest" ].freeze
@@ -188,38 +191,10 @@ class Tournament < ApplicationRecord
     ActiveSupport::Digest.hexdigest(to_json)
   end
 
-  # Override getter to shift bits left
-  def game_decisions
-    value = super
-    value << 1
-  end
-
-  def game_decisions=(value)
-    self[:game_decisions] = unsigned_right_shift(value)
-  end
-
-  # Override getter to shift bits left
-  def game_mask
-    value = super
-    value << 1
-  end
-
-  def game_mask=(value)
-    self[:game_mask] = unsigned_right_shift(value)
-  end
-
   private
 
   def team_hash(team)
     team.present? ? { id: team.id, seed: team.seed, name: team.name } : nil
-  end
-
-  def unsigned_right_shift(num)
-    # First perform the right shift
-    result = num >> 1
-
-    # Then mask off the MSB (for 64-bit integer)
-    result & Bracket::MAX_INT64
   end
 
   def region_labels_must_be_valid_permutation
