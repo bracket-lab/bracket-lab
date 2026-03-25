@@ -1,8 +1,8 @@
 class Elimination
-  attr_reader :outcomes
+  attr_reader :outcome_rankings
 
   def initialize
-    @outcomes = []
+    @outcome_rankings = []
   end
 
   def results(t_decision_team_slots)
@@ -42,7 +42,7 @@ class Elimination
     tuples.each.with_index do |tuple, i|
       rank = i + 1 unless i.zero? || tuple[1] == tuples[i - 1][1]
       if rank < 6
-        @outcomes << OutcomeRanking.new(game_decisions: decisions, bracket_id: tuple[0], rank: rank, points: tuple[1])
+        @outcome_rankings << OutcomeRanking.new(game_decisions: decisions, bracket_id: tuple[0], rank: rank, points: tuple[1])
       end
       break unless rank < 6
     end

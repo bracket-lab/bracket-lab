@@ -22,7 +22,7 @@ class UpdateBestFinishesJob < ApplicationJob
     elimination.results(tournament.decision_team_slots.dup)
 
     OutcomeRanking.transaction do
-      elimination.outcomes.each(&:save!)
+      elimination.outcome_rankings.each(&:save!)
     end
 
     tournament.update!(outcomes_calculated: true)

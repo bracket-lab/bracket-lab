@@ -47,7 +47,7 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
 
     fresh = Elimination.new
     fresh.results(@tournament.decision_team_slots.dup)
-    expected_finishes = best_finishes_from(fresh.outcomes)
+    expected_finishes = best_finishes_from(fresh.outcome_rankings)
 
     Bracket.find_each do |bracket|
       pr = PossibleResult.find_by(bracket_id: bracket.id)
@@ -77,7 +77,7 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
 
     fresh = Elimination.new
     fresh.results(@tournament.reload.decision_team_slots.dup)
-    expected_finishes = best_finishes_from(fresh.outcomes)
+    expected_finishes = best_finishes_from(fresh.outcome_rankings)
 
     Bracket.find_each do |bracket|
       pr = PossibleResult.find_by(bracket_id: bracket.id)
@@ -119,7 +119,7 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
 
     fresh = Elimination.new
     fresh.results(tournament.reload.decision_team_slots.dup)
-    expected_finishes = best_finishes_from(fresh.outcomes)
+    expected_finishes = best_finishes_from(fresh.outcome_rankings)
 
     Bracket.find_each do |bracket|
       pr = PossibleResult.find_by(bracket_id: bracket.id)

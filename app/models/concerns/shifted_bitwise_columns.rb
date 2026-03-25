@@ -1,3 +1,5 @@
+# Game Decisions and Masks are used in code as a 1-offset array but stored
+# shifted right to fit in a 64-bit signed int >= 0
 module ShiftedBitwiseColumns
   MAX_INT64 = 0x7FFFFFFFFFFFFFFF # 2^63 - 1
 

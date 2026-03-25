@@ -2,7 +2,7 @@ class Bracket < ApplicationRecord
   include ShiftedBitwiseColumns
   shifted_bitwise_columns :game_decisions
 
-  FULL_BRACKET_MASK = ShiftedBitwiseColumns::MAX_INT64 << 1 # 0xFFFFFFFFFFFFFFFE
+  FULL_BRACKET_MASK = 0xFFFFFFFFFFFFFFFE
 
   POINTS_PER_ROUND = [ 0, 1, 2, 3, 5, 8, 13 ].freeze
 
