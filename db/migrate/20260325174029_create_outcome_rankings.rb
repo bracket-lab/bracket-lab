@@ -7,6 +7,7 @@ class CreateOutcomeRankings < ActiveRecord::Migration[8.1]
       t.integer :points, null: false
       t.index :game_decisions
       t.index [ :bracket_id, :rank ]
+      t.timestamps
     end
 
     add_column :tournaments, :outcomes_calculated, :boolean, default: false, null: false

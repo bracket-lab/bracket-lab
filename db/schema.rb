@@ -38,9 +38,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_174029) do
 
   create_table "outcome_rankings", force: :cascade do |t|
     t.integer "bracket_id", null: false
+    t.datetime "created_at", null: false
     t.bigint "game_decisions", null: false
     t.integer "points", null: false
     t.integer "rank", null: false
+    t.datetime "updated_at", null: false
     t.index ["bracket_id", "rank"], name: "index_outcome_rankings_on_bracket_id_and_rank"
     t.index ["bracket_id"], name: "index_outcome_rankings_on_bracket_id"
     t.index ["game_decisions"], name: "index_outcome_rankings_on_game_decisions"
