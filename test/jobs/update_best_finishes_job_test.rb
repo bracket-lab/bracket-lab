@@ -32,26 +32,15 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
     assert @tournament.reload.outcomes_calculated?
   end
 
-  test "derives PossibleResult after populate" do
-    UpdateBestFinishesJob.perform_now
-
-    Bracket.find_each do |bracket|
-      pr = PossibleResult.find_by(bracket_id: bracket.id)
-      assert pr.present?, "PossibleResult should exist for bracket #{bracket.id}"
-      assert pr.best_finish.between?(1, 6)
-    end
-  end
-
-  test "PossibleResult matches outcome_rankings" do
+  test "best_finish derivable from outcome_rankings after populate" do
     UpdateBestFinishesJob.perform_now
 
     best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
 
     Bracket.find_each do |bracket|
-      pr = PossibleResult.find_by(bracket_id: bracket.id)
       expected = best_finishes[bracket.id] || 6
-      assert_equal expected, pr.best_finish,
-        "Bracket #{bracket.id}: PossibleResult=#{pr.best_finish}, expected=#{expected}"
+      assert expected.between?(1, 6),
+        "Bracket #{bracket.id}: best_finish=#{expected} should be between 1 and 6"
     end
   end
 
@@ -67,20 +56,18 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
       "Should decrease (was #{initial_count}, now #{OutcomeRanking.count})"
   end
 
-  test "PossibleResult correct after prune" do
+  test "touches a surviving row after prune so cache invalidates" do
     UpdateBestFinishesJob.perform_now
+    max_before = OutcomeRanking.maximum(:updated_at)
 
-    @tournament.update_game!(2, 0)
-    UpdateBestFinishesJob.perform_now
-
-    best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
-
-    Bracket.find_each do |bracket|
-      pr = PossibleResult.find_by(bracket_id: bracket.id)
-      expected = best_finishes[bracket.id] || 6
-      assert_equal expected, pr.best_finish,
-        "After prune — Bracket #{bracket.id}: PossibleResult=#{pr.best_finish}, expected=#{expected}"
+    travel 1.second do
+      @tournament.update_game!(2, 0)
+      UpdateBestFinishesJob.perform_now
     end
+
+    max_after = OutcomeRanking.maximum(:updated_at)
+    assert max_after > max_before,
+      "OutcomeRanking.maximum(:updated_at) should advance after prune"
   end
 
   test "leaves outcomes_calculated true after prune" do
@@ -116,10 +103,9 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
     best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
 
     Bracket.find_each do |bracket|
-      pr = PossibleResult.find_by(bracket_id: bracket.id)
       expected = best_finishes[bracket.id] || 6
-      assert_equal expected, pr.best_finish,
-        "Mid-scale — Bracket #{bracket.id}: PossibleResult=#{pr.best_finish}, expected=#{expected}"
+      assert expected.between?(1, 6),
+        "Mid-scale — Bracket #{bracket.id}: best_finish=#{expected}"
     end
   end
 end

@@ -11,8 +11,6 @@ class UpdateBestFinishesJob < ApplicationJob
     else
       prune(tournament)
     end
-
-    derive_possible_results
   end
 
   private
@@ -32,15 +30,10 @@ class UpdateBestFinishesJob < ApplicationJob
       "game_decisions & :mask != :decisions & :mask",
       mask: tournament_mask, decisions: tournament_decisions
     ).delete_all
-  end
 
-  def derive_possible_results
-    best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
-
-    Bracket.find_each do |bracket|
-      best_finish = best_finishes[bracket.id] || 6
-      possible_result = PossibleResult.find_or_create_by!(bracket_id: bracket.id)
-      possible_result.update!(best_finish: best_finish)
-    end
+    # Touch a surviving row so OutcomeRanking.maximum(:updated_at) advances.
+    # Pruning only deletes rows — without this, the leaderboard's HTTP cache
+    # (stale? check) would never invalidate after the async job completes.
+    OutcomeRanking.limit(1).touch_all
   end
 end
