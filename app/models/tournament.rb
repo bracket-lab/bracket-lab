@@ -63,6 +63,10 @@ class Tournament < ApplicationRecord
     num_games_remaining < 16 && num_games_remaining.positive?
   end
 
+  def display_eliminations?
+    outcomes_calculated? && !finished?
+  end
+
   delegate :championship, to: :tree
 
   def num_games
