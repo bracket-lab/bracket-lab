@@ -3,6 +3,7 @@ require "test_helper"
 class AuthenticationTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:john)
+    set_tournament_state(:pre_tipoff)
   end
 
   test "requires authentication" do

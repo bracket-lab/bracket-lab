@@ -62,7 +62,8 @@ class BracketTest < ActiveSupport::TestCase
 
   test "tree returns a TournamentTree for the bracket" do
     bracket = brackets(:complete_bracket)
-    Current.tournament = tournaments(:not_started)
+    set_tournament_state(:pre_tipoff)
+    Current.tournament = Tournament.field_64
 
     tree = bracket.tree
 

@@ -3,9 +3,8 @@ require "application_system_test_case"
 class BracketPickerTest < ApplicationSystemTestCase
   setup do
     @user = users(:user)
-    # Use not_started state: teams are set, but tournament hasn't started
-    # This allows bracket creation/editing
-    @tournament = tournaments(:not_started)
+    set_tournament_state(:pre_tipoff)
+    @tournament = Tournament.field_64
     Current.tournament = @tournament
   end
 

@@ -1,16 +1,5 @@
 <%
-team_names = %w[
-  Auburn Alabama\ St Louisville Creighton Michigan UC\ San\ Diego Texas\ A&M Yale
-  Ole\ Miss N\ Carolina Iowa\ St Lipscomb Marquette New\ Mexico Michigan\ St Bryant
-  Florida Norfolk\ St UConn Oklahoma Memphis Colorado\ St Maryland Grand\ Canyon
-  Missouri Drake Texas\ Tech UNCW Kansas Arkansas St\ John's Omaha
-  Duke Mnt\ St\ Mary's Miss\ St Baylor Oregon Liberty Arizona Akron
-  BYU VCU Wisconsin Montana St\ Mary's Vanderbilt Alabama Robert\ Morris
-  Houston SIUE Gonzaga Georgia Clemson McNeese Purdue High\ Point
-  Illinois Xavier Kentucky Troy UCLA Utah\ St Tennessee Wofford
-]
-
-team_names.each_with_index do |name, i|
+Scenarios::Base::TEAM_NAMES.each_with_index do |name, i|
   starting_slot = i + 64
   seed = Team.seed_for_slot(starting_slot)
   region = i / 16
