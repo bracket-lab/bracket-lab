@@ -11,7 +11,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should redirect to root if accessing countdown when tournament is set" do
-    Tournament.field_64.set_teams!
+    set_tournament_state(:pre_tipoff)
 
     get countdown_url
     assert_redirected_to root_path

@@ -2,7 +2,8 @@ require "test_helper"
 
 class TournamentHelperTest < ActionView::TestCase
   setup do
-    @tournament = tournaments(:not_started)
+    set_tournament_state(:pre_tipoff)
+    @tournament = Tournament.field_64
     Current.tournament = @tournament
   end
 

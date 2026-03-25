@@ -33,62 +33,49 @@ module Scenarios
     ].freeze
 
     BRACKET_NAMES = [
-      "Champion Picks",
-      "Cinderella Story",
-      "Final Four Frenzy",
-      "March Magic",
-      "Bracket Buster",
-      "Sweet 16 Dreams",
-      "Elite Eight Express",
-      "Underdog Special",
-      "Chalk Talk",
-      "Upset City",
-      "The Favorite",
-      "Dark Horse",
-      "Lucky Picks",
-      "Statistical Edge",
-      "Gut Feeling",
-      "Championship Run",
-      "Madness Method",
-      "Seeds of Victory",
-      "Bracket Science",
-      "Wild Card",
-      "Perfect Storm",
-      "Buzzer Beater",
-      "Net Results",
-      "Court Vision",
-      "Hoop Dreams"
+      "Champion Picks", "Cinderella Story", "Final Four Frenzy", "March Magic",
+      "Bracket Buster", "Sweet 16 Dreams", "Elite Eight Express", "Underdog Special",
+      "Chalk Talk", "Upset City", "The Favorite", "Dark Horse",
+      "Lucky Picks", "Statistical Edge", "Gut Feeling", "Championship Run",
+      "Madness Method", "Seeds of Victory", "Bracket Science", "Wild Card",
+      "Perfect Storm", "Buzzer Beater", "Net Results", "Court Vision", "Hoop Dreams"
     ].freeze
 
     def call
-      clear_data
-      create_users
+      ensure_admin
+      ensure_users
       ensure_teams
       setup
     end
 
     private
 
-    def clear_data
-      Bracket.destroy_all
-      User.destroy_all
-      Tournament.destroy_all
+    def ensure_admin
+      return if User.exists?(admin: true)
+
+      admin_attrs = USERS.find { |u| u[:admin] }
+      User.create!(
+        full_name: admin_attrs[:full_name],
+        email_address: admin_attrs[:email_address],
+        password: "password",
+        admin: true
+      )
     end
 
-    def create_users
-      password = ENV.fetch("DEV_PASSWORD") { raise "DEV_PASSWORD environment variable is required" }
+    def ensure_users
+      return if User.count >= USERS.size
 
-      USERS.each do |attrs|
-        User.create!(
-          full_name: attrs[:full_name],
-          email_address: attrs[:email_address],
-          password: password,
-          admin: attrs[:admin] || false
-        )
+      USERS.reject { |u| u[:admin] }.each do |attrs|
+        User.find_or_create_by!(email_address: attrs[:email_address]) do |user|
+          user.full_name = attrs[:full_name]
+          user.password = "password"
+        end
       end
     end
 
     def ensure_teams
+      return if Team.count >= 64
+
       TEAM_NAMES.each_with_index do |name, i|
         starting_slot = i + 64
         seed = Team.seed_for_slot(starting_slot)
@@ -121,29 +108,20 @@ module Scenarios
     end
 
     def distribute_users_for_brackets
-      # Distribute 25 brackets across 10 users (roughly 2-3 per user)
-      # Give some users 3 brackets, others 2 brackets
-      all_users = User.all.to_a
-
       # 5 users get 3 brackets, 5 users get 2 brackets = 25 total
+      all_users = User.all.to_a
       distribution = []
-
       all_users.first(5).each do |user|
         3.times { distribution << user }
       end
-
       all_users.last(5).each do |user|
         2.times { distribution << user }
       end
-
       distribution.shuffle
     end
 
     def distribute_styles_for_brackets
-      # Mix of bracket styles for variety:
-      # - 10 balanced (most common picking style)
-      # - 8 chalk (favoring favorites)
-      # - 7 upset (favoring underdogs)
+      # Mix of bracket styles: 10 balanced, 8 chalk, 7 upset
       styles = []
       styles += Array.new(10, :balanced)
       styles += Array.new(8, :chalk)
@@ -151,30 +129,33 @@ module Scenarios
       styles.shuffle
     end
 
-    def create_brackets
+    def ensure_brackets
+      return if Bracket.count >= BRACKET_NAMES.size
+
       users = distribute_users_for_brackets
       styles = distribute_styles_for_brackets
 
       BRACKET_NAMES.each_with_index do |name, index|
-        user = users[index]
-        style = styles[index]
-        game_decisions = Generators::BracketGenerator.new(style).call
-
-        Bracket.create!(
-          name: name,
-          user: user,
-          game_decisions: game_decisions
-        )
+        Bracket.find_or_create_by!(name: name) do |bracket|
+          bracket.user = users[index]
+          bracket.game_decisions = Generators::BracketGenerator.new(styles[index]).call
+        end
       end
     end
 
-    # Common setup for scenarios with brackets in an active tournament.
-    # Creates tournament, sets teams, creates 25 brackets, starts tournament.
-    def create_tournament_in_progress
-      t = Tournament.create!(state: :pre_selection)
-      t.set_teams!
-      create_brackets
-      t.start!
+    def set_tournament_state(state, num_games: 0, gap_slots: nil)
+      t = tournament
+      t.set_teams! if t.pre_selection?
+
+      if num_games > 0
+        result = Generators::TournamentGenerator.new(num_games, gap_slots: gap_slots).call
+        result.apply_to(t)
+      else
+        t.update!(state: state, game_decisions: 0, game_mask: 0)
+      end
+
+      t.start! if state == :in_progress && t.not_started?
+      t.completed! if state == :completed
     end
   end
 end

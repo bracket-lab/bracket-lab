@@ -10,7 +10,7 @@ module Scenarios
     # - 8-seed vs 9-seed: nearly a coin flip (45% for 9-seed)
     #
     class GameOutcome
-      def self.higher_seed_wins?(seed_a, seed_b)
+      def self.higher_seed_wins?(seed_a, seed_b, rng: Random)
         favorite = [ seed_a, seed_b ].min
         underdog = [ seed_a, seed_b ].max
 
@@ -21,7 +21,7 @@ module Scenarios
         else 0.05            # Heavy favorite (1v16, 2v15)
         end
 
-        rand > upset_chance
+        rng.rand > upset_chance
       end
     end
   end

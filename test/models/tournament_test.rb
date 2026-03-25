@@ -2,7 +2,7 @@ require "test_helper"
 
 class TournamentTest < ActiveSupport::TestCase
   def setup
-    Tournament.delete_all # Ensure we start fresh
+    set_tournament_state(:pre_selection)
     @tournament = Tournament.field_64
     @tip_off = Tournament::TIP_OFF
   end

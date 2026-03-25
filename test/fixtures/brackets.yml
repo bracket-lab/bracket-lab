@@ -1,23 +1,15 @@
-# Bracket with all first seeds winning
 one:
-  name: Perfect Bracket One
+  name: Bracket One
   user: john
-  game_decisions: 0 # All left-side teams win
+  game_decisions: 0
 
-# Bracket with all second seeds winning
-two:
-  name: All Upsets One
-  user: john
-  game_decisions: <%= (2**63) - 1 %> # All right-side teams win
-
-# Bracket with mixed results
-three:
-  name: Mixed Picks One
-  user: jane
-  game_decisions: <%= 2**32 %> # Some mixed picks 
+complete_bracket:
+  name: "Complete Bracket"
+  user: user
+  game_decisions: <%= 2**62 - 1 %>
 
 perfect:
-  name: "Perfect Bracket Two"
+  name: "Perfect Bracket"
   user: john
   game_decisions: 0
 
@@ -25,19 +17,3 @@ perfect_clone:
   name: "Perfect Clone"
   user: jane
   game_decisions: 0
-
-all_upsets:
-  name: "All Upsets Two"
-  user: john
-  game_decisions: <%= (2**63) - 1 %>
-
-mixed_picks:
-  name: "Mixed Picks Two"
-  user: jane
-  game_decisions: <%= 2**32 %>
-
-# Complete bracket with all 63 games decided
-complete_bracket:
-  name: "Complete Bracket"
-  user: user
-  game_decisions: <%= 2**62 - 1 %> 

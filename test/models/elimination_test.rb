@@ -3,12 +3,8 @@ require "test_helper"
 class EliminationTest < ActiveSupport::TestCase
   setup do
     @elimination = Elimination.new
+    set_tournament_state(:final_four)
     @tournament = Tournament.field_64
-
-    # Set up tournament to have only 4 games remaining (much faster than 8)
-    59.times do |i|
-      @tournament.update_game!(i + 1, 0)
-    end
   end
 
   test "initializes with all brackets at rank 6" do
@@ -74,7 +70,7 @@ class EliminationTest < ActiveSupport::TestCase
   end
 
   test "does not calculate rankings when too many games remain" do
-    @tournament.update!(game_decisions: 0, game_mask: 0)
+    set_tournament_state(:tipoff)
     slots = Array.new(16) { |i| i * 2 }
 
     @elimination.results(slots)
