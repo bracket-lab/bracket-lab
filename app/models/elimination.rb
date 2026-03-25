@@ -1,10 +1,8 @@
 class Elimination
-  attr_accessor :acc
   attr_reader :outcomes
 
   def initialize
     @outcomes = []
-    @acc = brackets.to_h { |b| [ b.id, 6 ] }
   end
 
   def results(t_decision_team_slots)
@@ -44,7 +42,6 @@ class Elimination
     rank = 1
     tuples.each.with_index do |tuple, i|
       rank = i + 1 unless i.zero? || tuple[1] == tuples[i - 1][1]
-      acc[tuple[0]] = [ rank, acc[tuple[0]] ].min
       if rank < 6
         @outcomes << { game_decisions: stored_decisions, bracket_id: tuple[0], rank: rank, points: tuple[1] }
       end
