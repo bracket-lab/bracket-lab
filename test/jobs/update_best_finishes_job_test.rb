@@ -4,21 +4,23 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
   setup do
     set_tournament_state(:final_four)
     @tournament = Tournament.field_64
-    Outcome.delete_all
+    OutcomeRanking.delete_all
   end
 
   test "does nothing when start_eliminating? is false" do
     set_tournament_state(:some_games) # 10 games played, 53 remaining
     UpdateBestFinishesJob.perform_now
 
-    assert_equal 0, Outcome.count
+    assert_equal 0, OutcomeRanking.count
   end
 
-  test "populates outcomes on first run" do
+  test "populates outcome_rankings on first run" do
     UpdateBestFinishesJob.perform_now
 
     remaining = @tournament.num_games_remaining
-    assert_equal 2**remaining, Outcome.count
+    expected_scenarios = 2**remaining
+    distinct_outcomes = OutcomeRanking.distinct.count(:game_decisions)
+    assert_equal expected_scenarios, distinct_outcomes
     assert OutcomeRanking.count > 0
   end
 
@@ -54,27 +56,16 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
     end
   end
 
-  test "prunes outcomes on subsequent run" do
+  test "prunes outcome_rankings on subsequent run" do
     UpdateBestFinishesJob.perform_now
-    initial_count = Outcome.count
+    initial_count = OutcomeRanking.count
 
     # Slot 2 is the first Final Four game (unplayed after :final_four state)
     @tournament.update_game!(2, 0)
     UpdateBestFinishesJob.perform_now
 
-    assert Outcome.count < initial_count,
-      "Should decrease (was #{initial_count}, now #{Outcome.count})"
-  end
-
-  test "cascade deletes rankings on prune" do
-    UpdateBestFinishesJob.perform_now
-    initial_ranking_count = OutcomeRanking.count
-
-    @tournament.update_game!(2, 0)
-    UpdateBestFinishesJob.perform_now
-
-    assert OutcomeRanking.count < initial_ranking_count,
-      "Rankings should decrease after prune"
+    assert OutcomeRanking.count < initial_count,
+      "Should decrease (was #{initial_count}, now #{OutcomeRanking.count})"
   end
 
   test "PossibleResult correct after prune" do
@@ -106,24 +97,23 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
 
   test "idempotent — running twice without game changes" do
     UpdateBestFinishesJob.perform_now
-    count_after_first = Outcome.count
+    count_after_first = OutcomeRanking.count
 
     UpdateBestFinishesJob.perform_now
-    assert_equal count_after_first, Outcome.count
+    assert_equal count_after_first, OutcomeRanking.count
   end
 
   test "mid-scale — correct at 256 outcomes" do
     # 55 games played = 8 remaining = 256 outcomes
-    # Unplayed slots: [1, 2, 3, 4, 5, 6, 7, 15]
     tournament = Tournament.field_64
     tournament.update!(game_decisions: 0, game_mask: 0)
     result = Scenarios::Generators::TournamentGenerator.new(55, seed: Minitest.seed).call
     result.apply_to(tournament)
-    Outcome.delete_all
+    OutcomeRanking.delete_all
 
     UpdateBestFinishesJob.perform_now
 
-    assert_equal 256, Outcome.count
+    assert_equal 256, OutcomeRanking.distinct.count(:game_decisions)
 
     fresh = Elimination.new
     fresh.results(tournament.reload.decision_team_slots.dup)

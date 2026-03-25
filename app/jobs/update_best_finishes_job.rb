@@ -6,7 +6,7 @@ class UpdateBestFinishesJob < ApplicationJob
     tournament = Current.tournament
     return unless tournament.start_eliminating?
 
-    if Outcome.none?
+    if OutcomeRanking.none?
       populate(tournament)
     else
       prune(tournament)
@@ -21,26 +21,7 @@ class UpdateBestFinishesJob < ApplicationJob
     elimination = Elimination.new
     elimination.results(tournament.decision_team_slots.dup)
 
-    Outcome.transaction do
-      outcome_rows = elimination.outcomes.map { |o| { game_decisions: o[:game_decisions] } }
-      Outcome.insert_all(outcome_rows)
-
-      id_map = Outcome.pluck(:game_decisions, :id).to_h
-
-      ranking_rows = elimination.outcomes.flat_map do |outcome|
-        outcome_id = id_map[outcome[:game_decisions]]
-        outcome[:rankings].map do |r|
-          {
-            outcome_id: outcome_id,
-            bracket_id: r[:bracket_id],
-            rank: r[:rank],
-            points: r[:points]
-          }
-        end
-      end
-
-      OutcomeRanking.insert_all(ranking_rows) if ranking_rows.any?
-    end
+    OutcomeRanking.insert_all(elimination.outcomes) if elimination.outcomes.any?
 
     tournament.update!(outcomes_calculated: true)
   end
@@ -50,7 +31,7 @@ class UpdateBestFinishesJob < ApplicationJob
     tournament_mask = tournament[:game_mask]
     tournament_decisions = tournament[:game_decisions]
 
-    Outcome.where(
+    OutcomeRanking.where(
       "game_decisions & :mask != :decisions & :mask",
       mask: tournament_mask, decisions: tournament_decisions
     ).delete_all
