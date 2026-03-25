@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_13_144117) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_25_174029) do
+  create_table "_litestream_lock", id: false, force: :cascade do |t|
+    t.integer "id"
+  end
+
+  create_table "_litestream_seq", id: :integer, default: nil, force: :cascade do |t|
+    t.integer "seq"
+  end
+
   create_table "brackets", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "game_decisions", null: false
@@ -34,6 +42,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_13_144117) do
     t.index ["created_by_id"], name: "index_invites_on_created_by_id"
     t.index ["email_address"], name: "index_invites_on_email_address"
     t.index ["token"], name: "index_invites_on_token", unique: true
+  end
+
+  create_table "outcome_rankings", force: :cascade do |t|
+    t.integer "bracket_id", null: false
+    t.integer "outcome_id", null: false
+    t.integer "points", null: false
+    t.integer "rank", null: false
+    t.index ["bracket_id", "rank"], name: "index_outcome_rankings_on_bracket_id_and_rank"
+    t.index ["bracket_id"], name: "index_outcome_rankings_on_bracket_id"
+    t.index ["outcome_id"], name: "index_outcome_rankings_on_outcome_id"
+  end
+
+  create_table "outcomes", force: :cascade do |t|
+    t.bigint "game_decisions", null: false
+    t.index ["game_decisions"], name: "index_outcomes_on_game_decisions", unique: true
   end
 
   create_table "possible_results", force: :cascade do |t|
@@ -71,6 +94,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_13_144117) do
     t.datetime "created_at", null: false
     t.bigint "game_decisions", default: 0, null: false
     t.bigint "game_mask", default: 0, null: false
+    t.boolean "outcomes_calculated", default: false, null: false
     t.json "region_labels", default: ["South", "West", "East", "Midwest"], null: false
     t.integer "state", default: 0, null: false
     t.datetime "updated_at", null: false
@@ -90,6 +114,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_13_144117) do
 
   add_foreign_key "brackets", "users"
   add_foreign_key "invites", "users", column: "created_by_id"
+  add_foreign_key "outcome_rankings", "brackets"
+  add_foreign_key "outcome_rankings", "outcomes", on_delete: :cascade
   add_foreign_key "possible_results", "brackets"
   add_foreign_key "sessions", "users"
 end
