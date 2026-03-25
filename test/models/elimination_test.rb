@@ -111,4 +111,54 @@ class EliminationTest < ActiveSupport::TestCase
 
     assert_same first_call, second_call, "Brackets should be cached"
   end
+
+  test "collects outcomes" do
+    @elimination.results(@tournament.decision_team_slots.dup)
+
+    assert @elimination.outcomes.any?, "Should collect outcomes"
+  end
+
+  test "outcome count matches 2^N remaining games" do
+    @elimination.results(@tournament.decision_team_slots.dup)
+
+    remaining = @tournament.num_games_remaining
+    expected_count = 2**remaining
+    assert_equal expected_count, @elimination.outcomes.size
+  end
+
+  test "collects unique game_decisions per outcome" do
+    @elimination.results(@tournament.decision_team_slots.dup)
+
+    decisions = @elimination.outcomes.map { |o| o[:game_decisions] }
+    assert_equal decisions.size, decisions.uniq.size
+  end
+
+  test "only collects rankings with rank < 6" do
+    @elimination.results(@tournament.decision_team_slots.dup)
+
+    @elimination.outcomes.each do |outcome|
+      outcome[:rankings].each do |ranking|
+        assert ranking[:rank].between?(1, 5),
+          "Rank #{ranking[:rank]} should be between 1 and 5"
+      end
+    end
+  end
+
+  test "outcome rankings match accumulator best_finish" do
+    @elimination.results(@tournament.decision_team_slots.dup)
+
+    # Derive best_finish from collected outcomes
+    derived = {}
+    @elimination.outcomes.each do |outcome|
+      outcome[:rankings].each do |r|
+        derived[r[:bracket_id]] = [ r[:rank], derived[r[:bracket_id]] || 6 ].min
+      end
+    end
+
+    @elimination.acc.each do |bracket_id, best_finish|
+      derived_finish = derived[bracket_id] || 6
+      assert_equal best_finish, derived_finish,
+        "Bracket #{bracket_id}: acc=#{best_finish}, derived=#{derived_finish}"
+    end
+  end
 end
