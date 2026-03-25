@@ -20,11 +20,6 @@ class UpdateBestFinishesJob < ApplicationJob
   def populate(tournament)
     elimination = Elimination.new
     elimination.results(tournament.decision_team_slots.dup)
-
-    OutcomeRanking.transaction do
-      elimination.outcome_rankings.each(&:save!)
-    end
-
     tournament.update!(outcomes_calculated: true)
   end
 

@@ -1,12 +1,10 @@
 class Elimination
-  attr_reader :outcome_rankings
-
   def initialize
-    @outcome_rankings = []
+   @start_eliminating = Tournament.field_64.start_eliminating?
   end
 
   def results(t_decision_team_slots)
-    return unless Tournament.field_64.start_eliminating?
+    return unless @start_eliminating
 
     nil_slot = t_decision_team_slots.rindex(nil)
 
@@ -42,7 +40,7 @@ class Elimination
     tuples.each.with_index do |tuple, i|
       rank = i + 1 unless i.zero? || tuple[1] == tuples[i - 1][1]
       if rank < 6
-        @outcome_rankings << OutcomeRanking.new(game_decisions: decisions, bracket_id: tuple[0], rank: rank, points: tuple[1])
+        OutcomeRanking.create!(game_decisions: decisions, bracket_id: tuple[0], rank: rank, points: tuple[1])
       end
       break unless rank < 6
     end
