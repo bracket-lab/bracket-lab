@@ -9,8 +9,10 @@ class Scenarios::Generators::GameOutcomeTest < ActiveSupport::TestCase
   end
 
   test "produces deterministic results with seeded rng" do
-    results1 = 10.times.map { Scenarios::Generators::GameOutcome.higher_seed_wins?(1, 16, rng: Random.new(42)) }
-    results2 = 10.times.map { Scenarios::Generators::GameOutcome.higher_seed_wins?(1, 16, rng: Random.new(42)) }
+    rng1 = Random.new(42)
+    rng2 = Random.new(42)
+    results1 = 10.times.map { Scenarios::Generators::GameOutcome.higher_seed_wins?(1, 16, rng: rng1) }
+    results2 = 10.times.map { Scenarios::Generators::GameOutcome.higher_seed_wins?(1, 16, rng: rng2) }
 
     assert_equal results1, results2, "Same seed should produce same sequence"
   end
