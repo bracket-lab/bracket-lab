@@ -1,26 +1,23 @@
 require "test_helper"
 
 class OutcomeRankingTest < ActiveSupport::TestCase
-  test "belongs to outcome" do
-    outcome = Outcome.create!(game_decisions: 42)
+  test "belongs to bracket" do
     ranking = OutcomeRanking.create!(
-      outcome: outcome,
+      game_decisions: 42,
       bracket: brackets(:one),
       rank: 1,
       points: 100
     )
-    assert_equal outcome, ranking.outcome
+    assert_equal brackets(:one), ranking.bracket
   end
 
-  test "belongs to bracket" do
-    outcome = Outcome.create!(game_decisions: 42)
-    bracket = brackets(:one)
+  test "stores game_decisions" do
     ranking = OutcomeRanking.create!(
-      outcome: outcome,
-      bracket: bracket,
+      game_decisions: 42,
+      bracket: brackets(:one),
       rank: 1,
       points: 100
     )
-    assert_equal bracket, ranking.bracket
+    assert_equal 42, ranking.game_decisions
   end
 end

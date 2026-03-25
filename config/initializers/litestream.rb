@@ -4,6 +4,8 @@
 # This allows you to configure Litestream using Rails encrypted credentials,
 # or some other mechanism where the values are only available at runtime.
 
+ActiveRecord::SchemaDumper.ignore_tables += %w[_litestream_lock _litestream_seq]
+
 Rails.application.configure do
   # Configure Litestream through environment variables. Use Rails encrypted credentials for secrets.
   # litestream_credentials = Rails.application.credentials.litestream
