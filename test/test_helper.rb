@@ -1,6 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require_relative "support/tournament_state"
 
 module ActiveSupport
   class TestCase
@@ -8,6 +9,7 @@ module ActiveSupport
     fixtures :all
 
     include Rails.application.routes.url_helpers
+    include TournamentState
     Rails.application.routes.default_url_options[:host] = "example.com"
   end
 end
