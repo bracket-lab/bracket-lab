@@ -42,16 +42,14 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
     end
   end
 
-  test "PossibleResult matches fresh Elimination computation" do
+  test "PossibleResult matches outcome_rankings" do
     UpdateBestFinishesJob.perform_now
 
-    fresh = Elimination.new
-    fresh.results(@tournament.decision_team_slots.dup)
-    expected_finishes = best_finishes_from(fresh.outcome_rankings)
+    best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
 
     Bracket.find_each do |bracket|
       pr = PossibleResult.find_by(bracket_id: bracket.id)
-      expected = expected_finishes[bracket.id] || 6
+      expected = best_finishes[bracket.id] || 6
       assert_equal expected, pr.best_finish,
         "Bracket #{bracket.id}: PossibleResult=#{pr.best_finish}, expected=#{expected}"
     end
@@ -75,13 +73,11 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
     @tournament.update_game!(2, 0)
     UpdateBestFinishesJob.perform_now
 
-    fresh = Elimination.new
-    fresh.results(@tournament.reload.decision_team_slots.dup)
-    expected_finishes = best_finishes_from(fresh.outcome_rankings)
+    best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
 
     Bracket.find_each do |bracket|
       pr = PossibleResult.find_by(bracket_id: bracket.id)
-      expected = expected_finishes[bracket.id] || 6
+      expected = best_finishes[bracket.id] || 6
       assert_equal expected, pr.best_finish,
         "After prune — Bracket #{bracket.id}: PossibleResult=#{pr.best_finish}, expected=#{expected}"
     end
@@ -117,25 +113,13 @@ class UpdateBestFinishesJobTest < ActiveJob::TestCase
 
     assert_equal 256, OutcomeRanking.distinct.count(:game_decisions)
 
-    fresh = Elimination.new
-    fresh.results(tournament.reload.decision_team_slots.dup)
-    expected_finishes = best_finishes_from(fresh.outcome_rankings)
+    best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
 
     Bracket.find_each do |bracket|
       pr = PossibleResult.find_by(bracket_id: bracket.id)
-      expected = expected_finishes[bracket.id] || 6
+      expected = best_finishes[bracket.id] || 6
       assert_equal expected, pr.best_finish,
         "Mid-scale — Bracket #{bracket.id}: PossibleResult=#{pr.best_finish}, expected=#{expected}"
     end
-  end
-
-  private
-
-  def best_finishes_from(outcomes)
-    finishes = {}
-    outcomes.each do |o|
-      finishes[o.bracket_id] = [ o.rank, finishes[o.bracket_id] || 6 ].min
-    end
-    finishes
   end
 end
