@@ -38,18 +38,17 @@ class Elimination
 
     tuples.sort_by! { |tuple| -tuple[1] }
 
-    ranked_tuples = []
+    decisions = Tournament.slots_to_decisions(t_decision_team_slots)
+    stored_decisions = (decisions >> 1) & Bracket::MAX_INT64
+
     rank = 1
     tuples.each.with_index do |tuple, i|
       rank = i + 1 unless i.zero? || tuple[1] == tuples[i - 1][1]
       acc[tuple[0]] = [ rank, acc[tuple[0]] ].min
-      ranked_tuples << { bracket_id: tuple[0], rank: rank, points: tuple[1] } if rank < 6
+      if rank < 6
+        @outcomes << { game_decisions: stored_decisions, bracket_id: tuple[0], rank: rank, points: tuple[1] }
+      end
       break unless rank < 6
     end
-
-    decisions = Tournament.slots_to_decisions(t_decision_team_slots)
-    stored_decisions = (decisions >> 1) & Bracket::MAX_INT64
-
-    @outcomes << { game_decisions: stored_decisions, rankings: ranked_tuples }
   end
 end

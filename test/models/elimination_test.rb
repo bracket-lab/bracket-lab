@@ -118,29 +118,42 @@ class EliminationTest < ActiveSupport::TestCase
     assert @elimination.outcomes.any?, "Should collect outcomes"
   end
 
-  test "outcome count matches 2^N remaining games" do
+  test "outcome count is proportional to remaining games" do
     @elimination.results(@tournament.decision_team_slots.dup)
 
     remaining = @tournament.num_games_remaining
-    expected_count = 2**remaining
-    assert_equal expected_count, @elimination.outcomes.size
+    num_scenarios = 2**remaining
+    # Each scenario produces 1-5 ranking rows
+    assert @elimination.outcomes.size >= num_scenarios
+    assert @elimination.outcomes.size <= num_scenarios * 5
   end
 
-  test "collects unique game_decisions per outcome" do
+  test "collects correct number of distinct game_decisions" do
     @elimination.results(@tournament.decision_team_slots.dup)
 
-    decisions = @elimination.outcomes.map { |o| o[:game_decisions] }
-    assert_equal decisions.size, decisions.uniq.size
+    remaining = @tournament.num_games_remaining
+    expected_scenarios = 2**remaining
+    distinct_decisions = @elimination.outcomes.map { |o| o[:game_decisions] }.uniq.size
+    assert_equal expected_scenarios, distinct_decisions
   end
 
   test "only collects rankings with rank < 6" do
     @elimination.results(@tournament.decision_team_slots.dup)
 
     @elimination.outcomes.each do |outcome|
-      outcome[:rankings].each do |ranking|
-        assert ranking[:rank].between?(1, 5),
-          "Rank #{ranking[:rank]} should be between 1 and 5"
-      end
+      assert outcome[:rank].between?(1, 5),
+        "Rank #{outcome[:rank]} should be between 1 and 5"
+    end
+  end
+
+  test "each outcome has game_decisions, bracket_id, rank, and points" do
+    @elimination.results(@tournament.decision_team_slots.dup)
+
+    @elimination.outcomes.each do |outcome|
+      assert outcome.key?(:game_decisions), "Missing game_decisions"
+      assert outcome.key?(:bracket_id), "Missing bracket_id"
+      assert outcome.key?(:rank), "Missing rank"
+      assert outcome.key?(:points), "Missing points"
     end
   end
 
@@ -149,10 +162,8 @@ class EliminationTest < ActiveSupport::TestCase
 
     # Derive best_finish from collected outcomes
     derived = {}
-    @elimination.outcomes.each do |outcome|
-      outcome[:rankings].each do |r|
-        derived[r[:bracket_id]] = [ r[:rank], derived[r[:bracket_id]] || 6 ].min
-      end
+    @elimination.outcomes.each do |o|
+      derived[o[:bracket_id]] = [ o[:rank], derived[o[:bracket_id]] || 6 ].min
     end
 
     @elimination.acc.each do |bracket_id, best_finish|
