@@ -27,6 +27,3 @@ application.register("line-counter", LineCounterController)
 
 import PullToRefreshController from "./pull_to_refresh_controller"
 application.register("pull-to-refresh", PullToRefreshController)
-
-import AnalysisChartController from "./analysis_chart_controller"
-application.register("analysis-chart", AnalysisChartController)

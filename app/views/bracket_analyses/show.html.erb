@@ -22,32 +22,17 @@
     </div>
   <% else %>
     <%# Finish Distribution %>
-    <div class="mb-8"
-         data-controller="analysis-chart"
-         data-analysis-chart-distribution-value="<%= dist.to_json %>"
-         data-analysis-chart-sixth-plus-value="<%= sixth_plus %>">
-
+    <div class="mb-8">
       <h2 class="text-xs uppercase tracking-wider text-base-content/50 mb-4">Finish Distribution</h2>
 
-      <div class="flex items-center gap-8 flex-wrap">
-        <%# Donut chart %>
-        <div class="relative w-32 h-32 flex-shrink-0">
-          <canvas data-analysis-chart-target="canvas" width="128" height="128"></canvas>
-          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span class="font-bold text-xl" style="color: <%= rank_colors[best] || '#4b5563' %>"><%= best_pct %>%</span>
-            <span class="text-xs text-base-content/50"><%= best_label %></span>
-          </div>
-        </div>
-
-        <%# Horizontal bars %>
-        <div class="flex-1 min-w-48">
+      <div>
           <% (1..5).each do |rank| %>
             <% count = dist[rank] %>
             <% pct = total > 0 ? (count.to_f / total * 100).round(1) : 0 %>
             <div class="flex items-center gap-2 mb-2">
               <span class="w-7 text-sm font-bold" style="color: <%= rank_colors[rank] %>"><%= rank_labels[rank] %></span>
-              <div class="flex-1 bg-base-200 rounded h-5">
-                <div class="h-full rounded opacity-80" style="width: <%= pct %>%; background: <%= rank_colors[rank] %>;"></div>
+              <div class="flex-1 bg-base-200 rounded" style="height: 1.25rem;">
+                <div class="rounded opacity-80" style="height: 100%; width: <%= pct %>%; background: <%= rank_colors[rank] %>;"></div>
               </div>
               <span class="w-20 text-right text-xs text-base-content/70">
                 <%= number_with_delimiter(count) %>
@@ -59,44 +44,54 @@
           <% sixth_pct = total > 0 ? (sixth_plus.to_f / total * 100).round(1) : 0 %>
           <div class="flex items-center gap-2">
             <span class="w-7 text-sm font-bold" style="color: #4b5563">6th+</span>
-            <div class="flex-1 bg-base-200 rounded h-5">
-              <div class="h-full rounded opacity-80" style="width: <%= sixth_pct %>%; background: #4b5563;"></div>
+            <div class="flex-1 bg-base-200 rounded" style="height: 1.25rem;">
+              <div class="rounded opacity-80" style="height: 100%; width: <%= sixth_pct %>%; background: #4b5563;"></div>
             </div>
             <span class="w-20 text-right text-xs text-base-content/70">
               <%= number_with_delimiter(sixth_plus) %>
               <span class="text-base-content/40">(<%= sixth_pct %>%)</span>
             </span>
           </div>
-        </div>
       </div>
     </div>
 
     <div class="divider"></div>
 
     <%# Game Impact Cards %>
-    <% if @analysis.game_impacts.any? || @analysis.undetermined_games.any? %>
+    <% if @analysis.game_impacts.any? %>
       <h2 class="text-xs uppercase tracking-wider text-base-content/50 mb-4">Game Impact</h2>
 
       <% @analysis.game_impacts.each do |impact| %>
+        <%
+          # Show the more advantageous outcome first
+          best_count_0 = impact[:outcomes][0][best] || 0
+          best_count_1 = impact[:outcomes][1][best] || 0
+          ordered_outcomes = best_count_0 >= best_count_1 ? [0, 1] : [1, 0]
+          first_team = ordered_outcomes.first == 0 ? impact[:team_zero] : impact[:team_one]
+          second_team = ordered_outcomes.first == 0 ? impact[:team_one] : impact[:team_zero]
+        %>
         <div class="bg-base-200 rounded-lg p-4 mb-3">
-          <div class="flex justify-between items-center mb-3">
+          <div class="mb-3">
             <span class="font-bold text-sm">
-              <%= impact[:round_name] %><%= " — #{impact[:region]}" if impact[:region] %>
+              <%= first_team.name %> vs <%= second_team.name %>
             </span>
           </div>
-
-          <% [0, 1].each do |outcome| %>
+          <% ordered_outcomes.each_with_index do |outcome, idx| %>
             <% team = outcome == 0 ? impact[:team_zero] : impact[:team_one] %>
             <% outcome_dist = impact[:outcomes][outcome] %>
             <% outcome_total = total / 2 %>
             <% best_count_for_outcome = outcome_dist[best] || 0 %>
-            <% best_pct_for_outcome = outcome_total > 0 ? (best_count_for_outcome.to_f / outcome_total * 100).round(1) : 0 %>
-            <div class="<%= 'mb-2' if outcome == 0 %>">
-              <div class="flex items-center gap-2">
-                <span class="w-32 text-xs text-base-content/70">
-                  If <span class="font-bold text-base-content"><%= "##{team.seed} #{team.name}" %></span> wins
+            <div class="<%= 'mb-3' if idx == 0 %>">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-base-content/70">
+                  If <span class="font-bold text-base-content"><%= team.name %></span> wins
                 </span>
-                <div class="flex-1 flex h-4 rounded overflow-hidden">
+                <span class="text-xs font-medium" style="color: <%= rank_colors[best] || '#4b5563' %>;">
+                  <%= best_count_for_outcome %> / <%= number_with_delimiter(outcome_total) %> <%= best_label %>
+                </span>
+              </div>
+              <div class="pl-2 pb-1">
+                <div class="flex rounded overflow-hidden" style="height: 1rem;">
                   <% (1..5).each do |rank| %>
                     <% rc = outcome_dist[rank] || 0 %>
                     <% rpct = outcome_total > 0 ? (rc.to_f / outcome_total * 100) : 0 %>
@@ -110,27 +105,12 @@
                     <div style="width: <%= sixth_pct_game %>%; background: #4b5563;"></div>
                   <% end %>
                 </div>
-                <span class="w-16 text-right text-xs font-medium" style="color: <%= rank_colors[best] || '#4b5563' %>">
-                  <%= best_pct_for_outcome %>% <%= best_label %>
-                </span>
               </div>
             </div>
           <% end %>
         </div>
       <% end %>
 
-      <%# Undetermined games %>
-      <% if @analysis.undetermined_games.any? %>
-        <h3 class="text-xs uppercase tracking-wider text-base-content/40 mt-6 mb-3">Later Rounds</h3>
-        <div class="flex flex-wrap gap-2">
-          <% @analysis.undetermined_games.each do |game| %>
-            <div class="bg-base-200 rounded-md px-3 py-2 opacity-50 text-xs text-base-content/60">
-              <%= game[:round_name] %><%= " — #{game[:region]}" if game[:region] %>
-              <span class="italic ml-1 text-base-content/40">TBD</span>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
     <% end %>
   <% end %>
 <% end %>

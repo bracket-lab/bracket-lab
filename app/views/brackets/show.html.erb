@@ -1,9 +1,15 @@
 <%= render layout: "layouts/page_header", locals: {
   title: @bracket.name,
+  subtitle: (capture do
+    if Current.tournament.display_eliminations?
+      if @bracket.eliminated?
+        content_tag(:span, "Eliminated", class: "text-base-content/60")
+      else
+        "Possible #{@bracket.best_finish.ordinalize} (#{link_to('Analysis', bracket_analysis_path(@bracket), class: 'link link-primary')})".html_safe
+      end
+    end
+  end),
   actions: capture do %>
-  <% if Current.tournament.display_eliminations? %>
-    <%= link_to "Analysis", bracket_analysis_path(@bracket), class: "btn btn-outline" %>
-  <% end %>
   <% if policy(@bracket).destroy? %>
     <%= button_to bracket_path(@bracket),
                   method: :delete,
