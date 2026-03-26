@@ -3,6 +3,7 @@ class BracketAnalysesController < ApplicationController
   before_action :check_eliminations
 
   def show
+    authorize @bracket, :show?
     @analysis = BracketAnalysis.new(@bracket)
   end
 
@@ -14,5 +15,9 @@ class BracketAnalysesController < ApplicationController
 
   def check_eliminations
     redirect_to bracket_path(@bracket) unless Current.tournament.display_eliminations?
+  end
+
+  def current_user
+    Current.user
   end
 end
