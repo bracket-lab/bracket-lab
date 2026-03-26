@@ -1,6 +1,9 @@
 <%= render layout: "layouts/page_header", locals: {
   title: @bracket.name,
   actions: capture do %>
+  <% if Current.tournament.display_eliminations? %>
+    <%= link_to "Analysis", bracket_analysis_path(@bracket), class: "btn btn-outline" %>
+  <% end %>
   <% if policy(@bracket).destroy? %>
     <%= button_to bracket_path(@bracket),
                   method: :delete,
