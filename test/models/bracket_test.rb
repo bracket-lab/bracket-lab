@@ -70,4 +70,54 @@ class BracketTest < ActiveSupport::TestCase
     assert_instance_of TournamentTree, tree
     assert_equal Current.tournament, tree.tournament
   end
+
+  test "best_finish returns minimum rank from outcome_rankings" do
+    set_tournament_state(:final_four)
+    bracket = brackets(:one)
+    OutcomeRanking.delete_all
+
+    OutcomeRanking.create!(game_decisions: 42, bracket: bracket, rank: 3, points: 100)
+    OutcomeRanking.create!(game_decisions: 84, bracket: bracket, rank: 1, points: 200)
+
+    assert_equal 1, bracket.best_finish
+  end
+
+  test "best_finish returns nil when no outcome_rankings exist" do
+    bracket = brackets(:one)
+    OutcomeRanking.delete_all
+
+    assert_nil bracket.best_finish
+  end
+
+  test "eliminated? returns false before outcomes calculated" do
+    set_tournament_state(:final_four)
+    Current.tournament = Tournament.field_64
+    bracket = brackets(:one)
+
+    refute bracket.eliminated?
+  end
+
+  test "eliminated? returns true when outcomes calculated and no rankings exist" do
+    set_tournament_state(:final_four)
+    tournament = Tournament.field_64
+    tournament.update!(outcomes_calculated: true)
+    Current.tournament = tournament
+    OutcomeRanking.delete_all
+    bracket = brackets(:one)
+
+    assert bracket.eliminated?
+  end
+
+  test "eliminated? returns false when best_finish <= 5" do
+    set_tournament_state(:final_four)
+    tournament = Tournament.field_64
+    tournament.update!(outcomes_calculated: true)
+    Current.tournament = tournament
+    OutcomeRanking.delete_all
+    bracket = brackets(:one)
+
+    OutcomeRanking.create!(game_decisions: 42, bracket: bracket, rank: 3, points: 100)
+
+    refute bracket.eliminated?
+  end
 end

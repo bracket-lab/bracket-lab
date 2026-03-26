@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_25_174029) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_25_215946) do
   create_table "brackets", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "game_decisions", null: false
@@ -46,15 +46,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_174029) do
     t.index ["bracket_id", "rank"], name: "index_outcome_rankings_on_bracket_id_and_rank"
     t.index ["bracket_id"], name: "index_outcome_rankings_on_bracket_id"
     t.index ["game_decisions"], name: "index_outcome_rankings_on_game_decisions"
-  end
-
-  create_table "possible_results", force: :cascade do |t|
-    t.integer "best_finish", default: 1, null: false
-    t.integer "bracket_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["bracket_id"], name: "index_possible_results_on_bracket_id", unique: true
-    t.index ["updated_at"], name: "index_possible_results_on_updated_at"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -104,6 +95,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_174029) do
   add_foreign_key "brackets", "users"
   add_foreign_key "invites", "users", column: "created_by_id"
   add_foreign_key "outcome_rankings", "brackets"
-  add_foreign_key "possible_results", "brackets"
   add_foreign_key "sessions", "users"
 end

@@ -208,4 +208,27 @@ class TournamentTest < ActiveSupport::TestCase
     assert_not @tournament.valid?
     assert_includes @tournament.errors[:region_labels], "must be a permutation of the four region names"
   end
+
+  test "display_eliminations? false before outcomes calculated" do
+    set_tournament_state(:final_four)
+    @tournament = Tournament.field_64
+
+    refute @tournament.display_eliminations?
+  end
+
+  test "display_eliminations? true when outcomes calculated and not finished" do
+    set_tournament_state(:final_four)
+    @tournament = Tournament.field_64
+    @tournament.update!(outcomes_calculated: true)
+
+    assert @tournament.display_eliminations?
+  end
+
+  test "display_eliminations? false when tournament finished" do
+    set_tournament_state(:completed)
+    @tournament = Tournament.field_64
+    @tournament.update!(outcomes_calculated: true)
+
+    refute @tournament.display_eliminations?
+  end
 end

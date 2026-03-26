@@ -1,12 +1,12 @@
 class LeaderboardController < ApplicationController
   before_action :check_tournament_status
   def index
-    possible_result_updated_at = PossibleResult.maximum(:updated_at)
-    @last_updated = [ Current.tournament.updated_at, possible_result_updated_at ].compact.max
+    outcome_ranking_updated_at = OutcomeRanking.maximum(:updated_at)
+    @last_updated = [ Current.tournament.updated_at, outcome_ranking_updated_at ].compact.max
 
     if stale?(last_modified: @last_updated)
       @ranked_brackets = ranked_brackets
-      @show_eliminated = possible_result_updated_at.present? && !Current.tournament.finished?
+      @show_eliminated = Current.tournament.display_eliminations?
     end
   end
 
