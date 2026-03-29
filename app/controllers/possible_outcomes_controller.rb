@@ -2,7 +2,7 @@ class PossibleOutcomesController < ApplicationController
   before_action :check_tournament_status
 
   def index
-    if stale?(last_modified: Current.tournament.updated_at)
+    if stale?(Current.tournament)
       @outcomes = calculate_outcomes(Current.tournament.decision_team_slots.dup)
     end
   end
