@@ -84,4 +84,5 @@ group :test do
   gem "capybara"
   gem "playwright-ruby-client", "1.57.0"  # Must exactly match nixpkgs playwright-driver.browsers version
   gem "capybara-playwright-driver"
+  gem "mocha", require: false
 end

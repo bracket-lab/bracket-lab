@@ -154,8 +154,8 @@ module Scenarios
         t.update!(state: state, game_decisions: 0, game_mask: 0)
       end
 
-      t.start! if state == :in_progress && t.not_started?
-      t.completed! if state == :completed
+      OutcomeRanking.delete_all
+      t.update!(outcomes_calculated: false)
     end
   end
 end

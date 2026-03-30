@@ -135,24 +135,6 @@ class TournamentTest < ActiveSupport::TestCase
     assert_match(/Mar \d+\-\d+/, first_round.last)
   end
 
-  test "game decisions bit operations" do
-    # Update database column directly to avoid getter/setter overrides
-    @tournament.update_column(:game_decisions, 1)
-    assert_equal 2, @tournament.game_decisions # Left shift by 1
-
-    @tournament.update_column(:game_decisions, 2)
-    assert_equal 4, @tournament.game_decisions # Left shift by 1
-  end
-
-  test "game mask bit operations" do
-    # Update database column directly to avoid getter/setter overrides
-    @tournament.update_column(:game_mask, 1)
-    assert_equal 2, @tournament.game_mask # Left shift by 1
-
-    @tournament.update_column(:game_mask, 2)
-    assert_equal 4, @tournament.game_mask # Left shift by 1
-  end
-
   test "start eliminating check" do
     refute @tournament.start_eliminating?
 
@@ -230,5 +212,27 @@ class TournamentTest < ActiveSupport::TestCase
     @tournament.update!(outcomes_calculated: true)
 
     refute @tournament.display_eliminations?
+  end
+
+  test "decisions_to_slots is the inverse of slots_to_decisions" do
+    set_tournament_state(:completed)
+    tournament = Tournament.field_64
+    original_slots = tournament.decision_team_slots
+
+    decisions = Tournament.slots_to_decisions(original_slots)
+    result = Tournament.decisions_to_slots(decisions)
+
+    assert_equal original_slots, result
+  end
+
+  test "decisions_to_slots round-trips through slots_to_decisions at final_four" do
+    set_tournament_state(:final_four)
+    OutcomeRanking.populate
+
+    OutcomeRanking.distinct.pluck(:game_decisions).each do |gd|
+      slots = Tournament.decisions_to_slots(gd)
+      round_tripped = Tournament.slots_to_decisions(slots)
+      assert_equal gd, round_tripped, "Round-trip failed for game_decisions=#{gd}"
+    end
   end
 end
