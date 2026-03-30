@@ -23,10 +23,10 @@ module Scenarios
     #   TournamentGenerator.new(63, seed: 42).call   # Complete tournament
     #
     class TournamentGenerator
-      Result = Struct.new(:decisions, :mask, keyword_init: true) do
+      Result = Struct.new(:decisions, :mask, :state, keyword_init: true) do
         def apply_to(tournament)
           tournament.update!(
-            state: :in_progress,
+            state:,
             game_decisions: decisions,
             game_mask: mask
           )
@@ -77,10 +77,22 @@ module Scenarios
           end
         end
 
-        Result.new(decisions: decisions, mask: mask)
+        state = determine_tournament_state(games_completed)
+
+        Result.new(decisions:, mask:, state:)
       end
 
       private
+
+      def determine_tournament_state(games_completed)
+        if games_completed.zero?
+          :not_started
+        elsif games_completed == 63
+          :completed
+        else
+          :in_progress
+        end
+      end
 
       def determine_slots_for_round(round, games_completed)
         games_remaining = num_games - games_completed
