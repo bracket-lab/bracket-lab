@@ -1,6 +1,6 @@
 <%= render layout: "layouts/page_header", locals: {
   title: "Leaderboard",
-  subtitle: "Last updated: #{time_ago_in_words(@last_updated)} ago • #{pluralize(@ranked_brackets.size, 'bracket')}"
+  subtitle: pluralize(@ranked_brackets.size, 'bracket')
 } do %>
   <div data-controller="filter-brackets" data-current-user-id="<%= Current.user.id %>">
     <div class="mb-4">
