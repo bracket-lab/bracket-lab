@@ -1,6 +1,10 @@
 class ShiftedBitwiseType < ActiveRecord::Type::Integer
   MAX_INT64 = 0x7FFFFFFFFFFFFFFF
 
+  def initialize(**)
+    super(limit: 8)
+  end
+
   # DB → Ruby (reading)
   def deserialize(value)
     return 0 if value.nil?

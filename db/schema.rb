@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_25_215946) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_30_155054) do
   create_table "brackets", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "game_decisions", null: false
@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_215946) do
     t.datetime "updated_at", null: false
     t.index ["bracket_id", "rank"], name: "index_outcome_rankings_on_bracket_id_and_rank"
     t.index ["bracket_id"], name: "index_outcome_rankings_on_bracket_id"
+    t.index ["game_decisions", "bracket_id"], name: "index_outcome_rankings_on_game_decisions_and_bracket_id", unique: true
     t.index ["game_decisions"], name: "index_outcome_rankings_on_game_decisions"
   end
 

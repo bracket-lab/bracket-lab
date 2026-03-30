@@ -71,13 +71,24 @@ class OutcomeRankingTest < ActiveSupport::TestCase
 
     test "prunes stale outcomes on subsequent run" do
       OutcomeRanking.populate
-      initial_count = OutcomeRanking.count
+      initial_count = OutcomeRanking.distinct.count(:game_decisions)
 
       Tournament.first.update_game!(2, 0)
       OutcomeRanking.populate
 
-      assert OutcomeRanking.count < initial_count,
+      assert_equal OutcomeRanking.distinct.count(:game_decisions), initial_count / 2,
         "Should decrease (was #{initial_count}, now #{OutcomeRanking.count})"
+    end
+
+    test "prunes invalid outcomes" do
+      OutcomeRanking.populate
+      initial_count = OutcomeRanking.distinct.count(:game_decisions)
+
+      Tournament.first.update_game!(2, 0)
+      OutcomeRanking.prune
+
+      assert_equal OutcomeRanking.distinct.count(:game_decisions), initial_count / 2,
+                   "Should decrease (was #{initial_count}, now #{OutcomeRanking.count})"
     end
 
     test "leaves outcomes_calculated true after prune" do

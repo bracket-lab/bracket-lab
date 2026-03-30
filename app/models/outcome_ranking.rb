@@ -3,6 +3,8 @@ class OutcomeRanking < ApplicationRecord
 
   belongs_to :bracket
 
+  validates :bracket_id, uniqueness: { scope: :game_decisions }
+
   class << self
     def populate(tournament = nil)
       tournament ||= Tournament.field_64
@@ -24,9 +26,9 @@ class OutcomeRanking < ApplicationRecord
     def prune(tournament = nil)
       tournament ||= Tournament.field_64
 
-      # Read raw DB values (right-shifted) bypassing the left-shifting getter
-      tournament_mask = tournament[:game_mask]
-      tournament_decisions = tournament[:game_decisions]
+      # Read raw DB values (right-shifted) bypassing the type cast bitshift
+      tournament_mask = tournament.read_attribute_before_type_cast(:game_mask)
+      tournament_decisions = tournament.read_attribute_before_type_cast(:game_decisions)
 
       OutcomeRanking.where(
         "game_decisions & :mask != :decisions & :mask",
