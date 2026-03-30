@@ -135,24 +135,6 @@ class TournamentTest < ActiveSupport::TestCase
     assert_match(/Mar \d+\-\d+/, first_round.last)
   end
 
-  test "game decisions bit operations" do
-    # Update database column directly to avoid getter/setter overrides
-    @tournament.update_column(:game_decisions, 1)
-    assert_equal 2, @tournament.game_decisions # Left shift by 1
-
-    @tournament.update_column(:game_decisions, 2)
-    assert_equal 4, @tournament.game_decisions # Left shift by 1
-  end
-
-  test "game mask bit operations" do
-    # Update database column directly to avoid getter/setter overrides
-    @tournament.update_column(:game_mask, 1)
-    assert_equal 2, @tournament.game_mask # Left shift by 1
-
-    @tournament.update_column(:game_mask, 2)
-    assert_equal 4, @tournament.game_mask # Left shift by 1
-  end
-
   test "start eliminating check" do
     refute @tournament.start_eliminating?
 

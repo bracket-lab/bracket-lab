@@ -1,6 +1,5 @@
 class Bracket < ApplicationRecord
-  include ShiftedBitwiseColumns
-  shifted_bitwise_columns :game_decisions
+  attribute :game_decisions, :shifted_bitwise
 
   FULL_BRACKET_MASK = 0xFFFFFFFFFFFFFFFE
 

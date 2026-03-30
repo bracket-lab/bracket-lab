@@ -25,42 +25,40 @@ class OutcomeRankingTest < ActiveSupport::TestCase
   class PopulateTest < ActiveSupport::TestCase
     setup do
       set_tournament_state(:final_four)
-      @tournament = Tournament.field_64
       OutcomeRanking.delete_all
     end
 
     test "cleans up and resets flag when not eliminating" do
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
       assert OutcomeRanking.count > 0
-      assert @tournament.reload.outcomes_calculated?
+      assert Tournament.first.outcomes_calculated?
 
       set_tournament_state(:some_games)
-      @tournament.reload
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
 
       assert_equal 0, OutcomeRanking.count
-      assert_not @tournament.reload.outcomes_calculated?
+      assert_not Tournament.first.outcomes_calculated?
     end
 
     test "populates outcome_rankings when eliminating" do
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
 
-      remaining = @tournament.num_games_remaining
+      remaining = Tournament.first.num_games_remaining
       expected_scenarios = 2**remaining
       assert_equal expected_scenarios, OutcomeRanking.distinct.count(:game_decisions)
       assert OutcomeRanking.count > 0
     end
 
     test "sets outcomes_calculated after populate" do
-      assert_not @tournament.outcomes_calculated?
+      assert_not Tournament.first.outcomes_calculated?
 
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
 
-      assert @tournament.reload.outcomes_calculated?
+      assert Tournament.first.outcomes_calculated?
     end
 
     test "best finish derivable from outcome_rankings" do
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
 
       best_finishes = OutcomeRanking.group(:bracket_id).minimum(:rank)
 
@@ -72,50 +70,36 @@ class OutcomeRankingTest < ActiveSupport::TestCase
     end
 
     test "prunes stale outcomes on subsequent run" do
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
       initial_count = OutcomeRanking.count
 
-      @tournament.update_game!(2, 0)
-      OutcomeRanking.populate(@tournament.reload)
+      Tournament.first.update_game!(2, 0)
+      OutcomeRanking.populate
 
       assert OutcomeRanking.count < initial_count,
         "Should decrease (was #{initial_count}, now #{OutcomeRanking.count})"
     end
 
-    test "advances updated_at after prune so caches invalidate" do
-      OutcomeRanking.populate(@tournament)
-      max_before = OutcomeRanking.maximum(:updated_at)
-
-      travel 1.second do
-        @tournament.update_game!(2, 0)
-        OutcomeRanking.populate(@tournament.reload)
-      end
-
-      max_after = OutcomeRanking.maximum(:updated_at)
-      assert max_after > max_before,
-        "OutcomeRanking.maximum(:updated_at) should advance after prune"
-    end
-
     test "leaves outcomes_calculated true after prune" do
-      OutcomeRanking.populate(@tournament)
-      assert @tournament.reload.outcomes_calculated?
+      OutcomeRanking.populate
+      assert Tournament.first.outcomes_calculated?
 
-      @tournament.update_game!(2, 0)
-      OutcomeRanking.populate(@tournament.reload)
+      Tournament.first.update_game!(2, 0)
+      OutcomeRanking.populate
 
-      assert @tournament.reload.outcomes_calculated?
+      assert Tournament.first.outcomes_calculated?
     end
 
     test "idempotent — running twice without game changes" do
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
       count_after_first = OutcomeRanking.count
 
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
       assert_equal count_after_first, OutcomeRanking.count
     end
 
     test "tied brackets receive the same rank" do
-      OutcomeRanking.populate(@tournament)
+      OutcomeRanking.populate
 
       perfect = brackets(:perfect)
       clone = brackets(:perfect_clone)

@@ -1,6 +1,7 @@
 class Tournament < ApplicationRecord
-  include ShiftedBitwiseColumns
-  shifted_bitwise_columns :game_decisions, :game_mask
+  attribute :game_decisions, :shifted_bitwise
+  attribute :game_mask, :shifted_bitwise
+
 
   TIP_OFF = Time.iso8601(ENV.fetch("TIP_OFF", "2026-03-19T16:00:00Z"))
   NUM_ROUNDS = 6
