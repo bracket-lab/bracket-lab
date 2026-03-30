@@ -213,4 +213,26 @@ class TournamentTest < ActiveSupport::TestCase
 
     refute @tournament.display_eliminations?
   end
+
+  test "decisions_to_slots is the inverse of slots_to_decisions" do
+    set_tournament_state(:completed)
+    tournament = Tournament.field_64
+    original_slots = tournament.decision_team_slots
+
+    decisions = Tournament.slots_to_decisions(original_slots)
+    result = Tournament.decisions_to_slots(decisions)
+
+    assert_equal original_slots, result
+  end
+
+  test "decisions_to_slots round-trips through slots_to_decisions at final_four" do
+    set_tournament_state(:final_four)
+    OutcomeRanking.populate
+
+    OutcomeRanking.distinct.pluck(:game_decisions).each do |gd|
+      slots = Tournament.decisions_to_slots(gd)
+      round_tripped = Tournament.slots_to_decisions(slots)
+      assert_equal gd, round_tripped, "Round-trip failed for game_decisions=#{gd}"
+    end
+  end
 end

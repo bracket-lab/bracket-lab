@@ -173,23 +173,24 @@ class Tournament < ApplicationRecord
     decisions
   end
 
-  def decision_team_slots
-    @decision_team_slots ||= begin
-      decisions = game_decisions
-      result = Array.new(64)
+  def self.decisions_to_slots(game_decisions, mask: nil)
+    result = Array.new(64)
 
-      (1..63).to_a.reverse.each do |i|
-        current_position = 1 << i
-        next unless current_position.anybits?(game_mask)
+    (1..63).to_a.reverse.each do |i|
+      current_position = 1 << i
+      next if mask && mask.nobits?(current_position)
 
-        decision = decisions.nobits?(current_position) ? 0 : 1
-        position = (i * 2) + decision
+      decision = game_decisions.nobits?(current_position) ? 0 : 1
+      position = (i * 2) + decision
 
-        result[i] = i >= 32 ? position : result[position]
-      end
-
-      result
+      result[i] = i >= 32 ? position : result[position]
     end
+
+    result
+  end
+
+  def decision_team_slots
+    @decision_team_slots ||= self.class.decisions_to_slots(game_decisions, mask: game_mask)
   end
 
   def cache_key
